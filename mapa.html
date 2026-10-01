@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa das Ovitrampas — Ponta Porã/MS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--ink:#0f2a33;--mute:#587079;--line:#d5dfe2;--bg:#eef3f4;--panel:#fff;--brand:#0a6b78;--brand-d:#07505a;--sel:#ffc21a;--nav:#1a6fe0;--err:#b3261e;--warn:#8f5400;--info:#3a5f8a}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'Archivo','Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.35}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #ffb000;outline-offset:2px}
+
+#app{display:grid;grid-template-columns:390px 1fr;height:100%}
+#side{overflow:auto;background:var(--panel);border-right:1px solid var(--line);padding:20px 18px 32px}
+#mapwrap{position:relative;min-width:0}
+#map{position:absolute;inset:0;background:#dfe7ea}
+
+.brand h1{font-size:25px;line-height:1.05;margin:0 0 4px;font-weight:800;letter-spacing:-.02em}
+.brand p{margin:0;color:var(--mute);font-size:13.5px}
+section{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+section h2{font-size:15px;margin:0 0 10px;font-weight:800}
+.hint{color:var(--mute);font-size:13px;margin:6px 0 0}
+
+.search{position:relative}
+.search input{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:10px;font-size:16px;background:#fff}
+.search input:focus{border-color:var(--brand);outline:none}
+#sres{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(15,42,51,.18);z-index:1200;max-height:320px;overflow:auto;display:none}
+#sres button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:10px 12px;border:0;background:none;border-bottom:1px solid #edf2f3}
+#sres button:hover,#sres button:focus{background:#eaf4f5}
+#sres b{min-width:38px;display:inline-block;text-align:center;background:#12404f;color:#fff;border-radius:6px;padding:2px 0;font-size:13px}
+#sres small{display:block;color:var(--mute)}
+
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{padding:10px 6px;border:1.5px solid var(--line);background:#fff;border-radius:8px;font-weight:600;font-size:14px}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+textarea{width:100%;min-height:76px;padding:11px 12px;border:2px solid var(--line);border-radius:10px;resize:vertical;font-size:15px}
+textarea:focus,input[type=number]:focus{border-color:var(--brand);outline:none}
+input[type=number]{width:84px;padding:9px 10px;border:2px solid var(--line);border-radius:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.btn{padding:10px 14px;border:1.5px solid var(--ink);background:#fff;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);display:inline-block;text-align:center}
+.btn:hover{background:#f0f5f6}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-d)}
+.btn.nav{background:var(--nav);border-color:var(--nav);color:#fff}
+.btn.big{width:100%;padding:16px;font-size:16px;font-weight:800;letter-spacing:.02em;margin-top:14px}
+.btn.ghost{border-color:var(--line)}
+.count{display:flex;gap:16px;margin-top:12px;font-size:14px}
+.count b{font-size:20px;font-weight:800}
+.switch{display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:600}
+.switch input{width:20px;height:20px}
+
+#groups{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+#groups button{display:flex;align-items:center;gap:8px;padding:7px 11px;border:1.5px solid var(--line);background:#fff;border-radius:8px;font-weight:600;font-size:13px}
+#groups i{width:14px;height:14px;border-radius:50%;display:inline-block}
+
+.valsum{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:5px 10px;border-radius:999px;font-weight:600;font-size:13px}
+.pill.erro{background:#fbe4e2;color:var(--err)}
+.pill.atenção{background:#fdeccd;color:var(--warn)}
+.pill.info{background:#e1ebf6;color:var(--info)}
+
+/* marcadores */
+.mk-wrap{background:none;border:none}
+.mk{position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;font-family:'Archivo','Segoe UI',system-ui,sans-serif;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
+.mk .num{position:relative;z-index:2;min-width:calc(var(--m,30px)*.95);padding:1px 6px 2px;border-radius:999px;background:var(--bg,#d90429);color:#fff;border:2.5px solid #fff;font-weight:900;font-size:calc(var(--f,13px) + 3px);line-height:1.1;text-align:center;font-variant-numeric:tabular-nums;text-shadow:0 1px 1px rgba(0,0,0,.45);margin-bottom:-5px}
+.mk.n3 .num{letter-spacing:-.04em}
+.mk svg.pot{width:calc(var(--m,30px)*1.05);height:calc(var(--m,30px)*1.05);display:block}
+.mk svg.pot .rim{fill:var(--bg,#d90429)}
+.mk.sel .num{background:var(--sel);color:#111;border-color:#111;text-shadow:none}
+.mk.sel svg.pot .rim{fill:var(--sel)}
+.z-s{--m:22px;--f:10px}.z-m{--m:30px;--f:13px}.z-l{--m:38px;--f:16px}.z-x{--m:46px;--f:20px}
+
+.leaflet-popup-content{margin:14px 16px;min-width:236px;font-family:'Archivo','Segoe UI',system-ui,sans-serif}
+.pp-id{font-size:20px;font-weight:800;margin-bottom:2px}
+.pp-addr{font-size:15px;font-weight:600}
+.pp-coord{font-size:12.5px;color:var(--mute);margin:4px 0 10px;font-variant-numeric:tabular-nums}
+.pp .btn{display:block;margin-top:7px;width:100%}
+.pp-warn{margin-top:10px;font-size:12.5px;color:var(--warn)}
+.leaflet-container a.btn{color:var(--ink)}
+.leaflet-container a.btn.nav{color:#fff}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;z-index:5000;font-weight:600;max-width:90vw;display:none}
+
+#shotBtn{position:absolute;right:12px;bottom:28px;z-index:1100;padding:11px 16px;border-radius:10px;border:0;background:var(--ink);color:#fff;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#shotBtn:disabled{opacity:.6}
+#menuBtn{display:none;position:absolute;top:12px;left:12px;z-index:1100;padding:11px 16px;border-radius:10px;border:0;background:var(--ink);color:#fff;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+
+/* painéis */
+.overlay{position:fixed;inset:0;background:rgba(15,42,51,.55);z-index:3000;display:none;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto}
+.modal{background:#fff;border-radius:14px;width:min(980px,100%);padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 6px;font-size:21px;font-weight:800}
+.vtools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.vtools select{padding:9px 10px;border:2px solid var(--line);border-radius:8px}
+.tw{overflow:auto;max-height:56vh;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid #e8eef0;text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:#f3f7f8;font-weight:800}
+td .lvl{font-weight:800}
+.lvl.erro{color:var(--err)}.lvl.atenção{color:var(--warn)}.lvl.info{color:var(--info)}
+td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3px 9px;font-weight:800}
+
+/* folha de campo */
+#sheet{position:fixed;inset:0;background:#cfd8dc;z-index:4000;display:none;overflow:auto}
+#sheetbar{position:sticky;top:0;z-index:5;background:var(--ink);padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#sheetbar .btn{border-color:#fff}
+#sheetbar .btn.primary{border-color:var(--brand)}
+#sheetbar .st{color:#cfe3e8;font-size:13px;margin-left:auto}
+#sheetPage{width:190mm;margin:16px auto;background:#fff;padding:0;color:#000}
+.sh-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #000;padding:10px 0 8px;gap:12px}
+.sh-head h3{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em}
+.sh-head p{margin:2px 0 0;font-size:12px}
+.sh-head .r{text-align:right;font-size:12px}
+.sh-fields{display:flex;gap:18px;font-size:12px;padding:8px 0;border-bottom:1px solid #999}
+.sh-fields span{flex:1;border-bottom:1px solid #000;padding-bottom:1px;min-height:18px}
+#sheetMap{height:600px;width:100%;border:1px solid #000;margin-top:10px}
+.sh-list{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:12px}
+.sh-item{display:flex;gap:9px;align-items:flex-start;break-inside:avoid;font-size:12px;line-height:1.25;padding:3px 0;border-bottom:1px dotted #aaa}
+.sh-item .n{flex:none;min-width:36px;height:26px;border-radius:13px;background:var(--bg,#d90429);color:#fff;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.sh-item small{display:block;color:#444;font-variant-numeric:tabular-nums}
+.sh-foot{margin-top:10px;font-size:10.5px;color:#444}
+
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  html,body{background:#fff;height:auto}
+  #app,#toast,.overlay,#menuBtn,#sheetbar{display:none!important}
+  #sheet{position:static;display:block!important;background:#fff;overflow:visible}
+  #sheetPage{margin:0}
+  .mk,.mk *,.sh-item .n{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+@media (max-width:820px){
+  #app{grid-template-columns:1fr}
+  #side{position:fixed;inset:0;z-index:2000;border:0;display:none;padding-bottom:90px}
+  body.menu-open #side{display:block}
+  #menuBtn{display:block}
+  body.menu-open #menuBtn{display:none}
+  .sidehead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  #closeMenu{display:block}
+  .chips{grid-template-columns:repeat(3,1fr)}
+}
+#closeMenu{display:none;border:0;background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-weight:800;flex:none}
+@media (min-width:821px){.sidehead{display:block}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <aside id="side" aria-label="Controles do mapa">
+    <div class="sidehead">
+      <div class="brand">
+        <h1>Mapa das ovitrampas</h1>
+        <p>Ponta Porã/MS · Vigilância em Saúde / Endemias</p>
+      </div>
+      <button id="closeMenu" type="button">Ver mapa</button>
+    </div>
+
+    <section>
+      <h2>Pesquisar</h2>
+      <div class="search">
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Número, rua ou endereço" aria-label="Pesquisar ovitrampa">
+        <div id="sres" role="listbox"></div>
+      </div>
+      <p class="hint">Ex.: 101, Guia Lopes, Vital Brasil.</p>
+    </section>
+
+    <section>
+      <h2>Filtrar por faixa de números</h2>
+      <div class="chips" id="chips">
+        <button class="chip" data-f="1-50" aria-pressed="false">1–50</button>
+        <button class="chip" data-f="51-100" aria-pressed="false">51–100</button>
+        <button class="chip" data-f="101-150" aria-pressed="false">101–150</button>
+        <button class="chip" data-f="151-200" aria-pressed="false">151–200</button>
+        <button class="chip" data-f="201-242" aria-pressed="false">201–242</button>
+        <button class="chip" data-f="all" aria-pressed="true">Todos</button>
+      </div>
+      <div class="row"><button class="btn" id="selFilter" type="button">Selecionar todos desta faixa</button></div>
+    </section>
+
+    <section>
+      <h2>Mapa de campo</h2>
+      <label for="ids" class="hint" style="margin:0 0 6px;display:block">Números das ovitrampas a enviar (use vírgula e traço)</label>
+      <textarea id="ids" placeholder="Ex.: 101-110, 115, 120, 133"></textarea>
+      <div class="row">
+        <button class="btn primary" id="apply" type="button">Mostrar só estas</button>
+        <button class="btn ghost" id="clear" type="button">Limpar seleção</button>
+      </div>
+      <label class="switch"><input type="checkbox" id="fieldMode"> Esconder as demais ovitrampas</label>
+      <div class="count"><div><b id="cSel">0</b> selecionadas</div><div><b id="cVis">242</b> no mapa</div></div>
+      <button class="btn primary big" id="gen" type="button">GERAR MAPA PARA CAMPO</button>
+      <p class="hint">Também dá para selecionar tocando no número e usando o botão “Selecionar” do balão.</p>
+    </section>
+
+    <section>
+      <h2>Agrupar por proximidade <span style="font-weight:400;color:var(--mute)">(prévia)</span></h2>
+      <div class="row" style="margin-top:0">
+        <label for="gsize">Pontos por mapa</label>
+        <input id="gsize" type="number" min="5" max="60" value="20">
+        <button class="btn" id="group" type="button">Agrupar</button>
+        <button class="btn ghost" id="ungroup" type="button">Remover cores</button>
+      </div>
+      <div id="groups"></div>
+      <p class="hint">Agrupa os pontos visíveis por vizinhança. Toque num grupo para selecioná-lo.</p>
+    </section>
+
+    <section>
+      <h2>Conferência das coordenadas</h2>
+      <div class="valsum" id="valsum"></div>
+      <p class="hint" id="valnote"></p>
+      <div class="row"><button class="btn" id="openVal" type="button">Ver lista para conferência</button></div>
+    </section>
+  </aside>
+
+  <main id="mapwrap">
+    <button id="menuBtn" type="button">☰ Menu</button>
+    <div id="map" role="application" aria-label="Mapa das ovitrampas"></div>
+    <button id="shotBtn" type="button">📷 Print do mapa</button>
+  </main>
+</div>
+
+<div class="overlay" id="val" role="dialog" aria-modal="true" aria-labelledby="valT">
+  <div class="modal">
+    <h2 id="valT">Conferência das coordenadas</h2>
+    <p class="hint" id="valInfo"></p>
+    <div class="vtools">
+      <label for="vlvl">Mostrar</label>
+      <select id="vlvl"><option value="">Todos os alertas</option><option value="erro">Só erros</option><option value="atenção">Só atenção</option><option value="info">Só informativos</option></select>
+      <button class="btn" id="csv" type="button">Baixar lista (CSV)</button>
+      <button class="btn" id="json" type="button">Exportar base (JSON)</button>
+      <button class="btn primary" id="vclose" type="button" style="margin-left:auto">Fechar</button>
+    </div>
+    <div class="tw"><table><thead><tr><th>ID</th><th>Nível</th><th>Tipo</th><th>Descrição</th><th>Coordenadas</th></tr></thead><tbody id="vbody"></tbody></table></div>
+    <h2 style="margin-top:20px;font-size:17px">Registro de correções</h2>
+    <p class="hint" id="corrInfo"></p>
+  </div>
+</div>
+
+<div id="sheet" aria-label="Mapa para campo">
+  <div id="sheetbar">
+    <button class="btn" id="sBack" type="button">← Voltar</button>
+    <button class="btn primary" id="sPrint" type="button">Imprimir / salvar PDF</button>
+    <button class="btn" id="sPng" type="button">Baixar imagem</button>
+    <button class="btn" id="sShare" type="button" style="display:none">Compartilhar imagem</button>
+    <button class="btn" id="sWa" type="button">WhatsApp (texto + links)</button>
+    <span class="st" id="sStatus"></span>
+  </div>
+  <div id="sheetPage">
+    <div class="sh-head">
+      <div><h3>Mapa de campo — Ovitrampas</h3><p>Ponta Porã/MS · Vigilância em Saúde / Endemias</p></div>
+      <div class="r"><b id="shCount"></b><br><span id="shDate"></span></div>
+    </div>
+    <div class="sh-fields"><span>Agente:</span><span>Equipe:</span><span>Data:</span></div>
+    <div id="sheetMap"></div>
+    <div class="sh-list" id="shList"></div>
+    <div class="sh-foot">O número no mapa é o ID permanente da ovitrampa. Para navegar, abra o link da ovitrampa recebido pelo WhatsApp ou procure o ponto no Google Maps pelas coordenadas.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+/* ===================== BASE OFICIAL (coordenação) =====================
+   [ID, endereço, latitude, longitude] — texto original, sem alteração.
+   IDs 1–242 são permanentes: nunca renumerar. */
+const RAW = [[1, "Rua Aymore de Oliveira Lima", "-22.57584224", "-55.6760529"], [2, "Rua Julio Toffoli", "-22.57739879", "-55.67640057"], [3, "Rua Itibere Vieira", "-22.577616", "-55.679396"], [4, "Rua Inacio Subtil de Oliveira", "-22.58104476", "-55.67673754"], [5, "Rua Julio Toffoli", "-22.58076511", "-55.6790878"], [6, "Rua Angelica Ferreira Cardinal", "-22.57992229", "-55.68213536"], [7, "Rua Itibere Vieira", "-22.5818827", "-55.6831812"], [8, "Rua Lino do Amaral", "-22.5807243", "-55.6872979"], [9, "Rua Joao Manoel Cardinal", "-22.5777256", "-55.6879824"], [10, "Rua Primavera", "-22.57531163", "-55.68482713"], [11, "Rua Joao Manoel Cardinal, 1480", "-22.57454643", "-55.68832114"], [12, "Rua Dr. Helio Brandao", "-22.57329254", "-55.69029826"], [13, "Rua Manoela Vieira Soares", "-22.57023405", "-55.6935585"], [14, "Rua Helio Brandao, 951", "-22.56971795", "-55.6909293"], [15, "Rua Vicente Azambuja, 1175", "-22.57069914", "-55.6876608"], [16, "Rua Jardim dos Estados", "-22.56977346", "-55.68383137"], [17, "Rua Jabaquara", "-22.57136627", "-55.68105688"], [18, "Rua Bandeirantes, quadra 49, lote 491", "-22.56842584", "-55.68056438"], [19, "Rua Barra Bonita", "-22.56705963", "-55.6835036"], [20, "Rua Nicandro Ernesto", "-22.56655068", "-55.6870003"], [21, "Rua Zeferindo D'Avila Monteiro", "-22.566694", "-55.6913"], [22, "Rua Antonia Capile", "-22.56797", "-55.69391"], [23, "Av. Vinicius Soares", "-22.562942", "-55.6969912"], [24, "Rua Dr. Miguel Marcondes", "-22.56305079", "-55.69422208"], [25, "Rua Eloah Vieira da Silva", "-22.56365679", "-55.69070914"], [26, "Rua Nicandro Ernesto Campos", "-22.56378921", "-55.68748345"], [27, "Rua Candido Garcia de Souza", "-22.56409977", "-55.68462325"], [28, "Rua Aurelio do Amaral", "-22.56458403", "-55.68095427"], [29, "Rua Miguel Marcondes Ultragas", "-22.56025315", "-55.68032235"], [30, "Rua Adalberto Froes", "-22.5597081", "-55.68409624"], [31, "Rua Adalberto Froes", "-22.56079166", "-55.68720333"], [32, "Rua Vera Cruz", "-22.55994983", "-55.69055235"], [33, "Rua Piaui", "-22.55929939", "-55.69478504"], [34, "Rua Cel. Ponce", "-22.55998724", "-55.69918766"], [35, "Rua 9", "-22.55979556", "-55.70320148"], [36, "Rua Digno Torres", "-22.55640235", "-55.70223854"], [37, "Rua Goias", "-22.55698604", "-55.69746937"], [38, "Rua Geovai", "-22.55638099", "-55.69586885"], [39, "Rua 21 de Abril", "-22.55620659", "-55.69184817"], [40, "Rua Dom Pedro I", "-22.5571292", "-55.68760542"], [41, "Av. Vinicius Nascimento", "-22.5578761", "-55.68242691"], [42, "Rua Vasco da Gama", "-22.55727521", "-55.68043576"], [43, "Rua Valparaiso", "-22.55471348", "-55.68905789"], [44, "Rua Ceara", "-22.55287234", "-55.68944586"], [45, "Rua Goias", "-22.5548915", "-55.6957812"], [46, "Rua Amancio dos Santos Moura", "-22.55068647", "-55.70072868"], [47, "Rua Digno Torres", "-22.55357348", "-55.70128226"], [48, "Rua Luiz Quintana", "-22.55355984", "-55.69844164"], [49, "Rua Ramao Vargas dos Santos", "-22.54908307", "-55.69904849"], [50, "Rua Sao Cristovao", "-22.5490969", "-55.69430482"], [51, "Rua Toledo", "-22.54763779", "-55.69142469"], [52, "Rua Tiete", "-22.54611011", "-55.69863444"], [53, "Rua Rosa Azul", "-22.54608832", "-55.69531537"], [54, "Rua Engenheiro Mauricio Dutra", "-22.54556159", "-55.6908646"], [55, "Rua Maringa", "-22.54524104", "-55.6888294"], [56, "Rua Genova", "-22.542453", "-55.686857"], [57, "Sao Joao del Rei", "-22.53912", "-55.687667"], [58, "Rua Doce", "-22.53955412", "-55.69017247"], [59, "Rua Pisa", "-22.5409595", "-55.69013065"], [60, "Rua Batista Azevedo", "-22.541706", "-55.702726"], [61, "Rua Marginal Oeste", "-22.54275098", "-55.70680137"], [62, "Rua Corumba", "-22.54567056", "-55.70727567"], [63, "Rua Aeroporto Viracopos", "-22.54544707", "-55.70352569"], [64, "Rua Aeroporto Guararapes", "-22.54774357", "-55.70468267"], [65, "Rua Caceres", "-22.54928736", "-55.70783861"], [66, "Rua Corumba", "-22.55026698", "-55.70924429"], [67, "Rua Epitacio Pessoa", "-22.55517427", "-55.70782915"], [68, "Rua Modesto Dauzacker", "-22.55605024", "-55.70756005"], [69, "Joao Gualberto Cabral - Gaucha Car", "-22.55660728", "-55.71097685"], [70, "Avenida Brasil - Produfertil", "-22.55573954", "-55.71435028"], [71, "Rua Joao V. Ferreira", "-22.55295413", "-55.71023103"], [72, "Rua Prudente de Morais", "-22.55311267", "-55.71441528"], [73, "Rua Primeiro de Outubro - Receita Federal", "-22.55243409", "-55.71767803"], [74, "Av. Internacional", "-22.55199534", "-55.72196827"], [75, "Rua 18 de Julho", "-22.54962682", "-55.7193726"], [76, "Rua Marechal Floriano", "-22.54909175", "-55.72229084"], [77, "Rua 13 de Setembro", "-22.54745872", "-55.72506861"], [78, "Rua 13 de Setembro", "-22.54567651", "-55.72658292"], [79, "Av. Brasil", "-22.54564195", "-55.72230274"], [80, "Travessa Ilizio Cabral, 20", "-22.5415", "-55.7188"], [81, "Rua Duque de Caxias", "-22.54187634", "-55.7252612"], [82, "Rua Guia Lopes", "-22.5413799", "-55.72847513"], [83, "Rua Marechal Floriano", "-22.53820736", "-55.72967611"], [84, "Rua 7 de Setembro", "-22.53801992", "-55.72637618"], [85, "Rua Guia Lopes", "-22.53738867", "-55.72184367"], [86, "Travessa Iguatemi", "-22.53737405", "-55.71968077"], [87, "Rua Manuel Dias de Pinho", "-22.53449145", "-55.71560914"], [88, "Rua Guia Lopes", "-22.53492307", "-55.71827699"], [89, "Rua Calogeras", "-22.53504413", "-55.72303158"], [90, "Rua Tiradentes", "-22.53550773", "-55.72576491"], [91, "Rua Presidente Vargas", "-22.53501604", "-55.72885822"], [92, "Rua Marechal Floriano", "-22.53475133", "-55.73247758"], [93, "Rua Baltazar Saldanha", "-22.53125897", "-55.73354231"], [94, "Rua Joaquim Teixeira", "-22.53129731", "-55.72997704"], [95, "Rua Calogeras", "-22.53127717", "-55.72538435"], [96, "Rua Tomaz Machado", "-22.53170396", "-55.72274168"], [97, "Rua Tiradentes", "-22.53109044", "-55.71834445"], [98, "Rua 7 de Setembro", "-22.53083278", "-55.71497559"], [99, "Rua Guia Lopes", "-22.53000035", "-55.71149945"], [100, "Rua Anhandui", "-22.52719331", "-55.71117505"], [101, "Rua Tiradentes", "-22.52767515", "-55.71388351"], [102, "Rua Presidente Vargas", "-22.52836381", "-55.7178673"], [103, "Guarda - AGETRAN", "-22.52690007", "-55.72389433"], [104, "Rua Calogeras - Arena Royal", "-22.52915021", "-55.72695016"], [105, "Rua Jorge Roberto Salomao", "-22.52732321", "-55.73038809"], [106, "Rua 15 de Novembro", "-22.5274056", "-55.73462847"], [107, "Rua Jose Bonifacio", "-22.52708862", "-55.73718552"], [108, "Av. Brasil - Loja de Gesso", "-22.52385148", "-55.73801071"], [109, "Rua General Osorio - Funcespp", "-22.5236532", "-55.73380397"], [110, "Rua Hemenelio Luiz Matoso", "-22.5234368", "-55.72844328"], [111, "Rua Jorge R. Salomao", "-22.52418281", "-55.72567349"], [112, "Baltazar Saldanha", "-22.52505", "-55.72149"], [113, "Rua Santa Maria", "-22.52338114", "-55.71824844"], [114, "Rua Pedro Manvailer", "-22.52398929", "-55.7145624"], [115, "Rua Presidente Vargas", "-22.52390475", "-55.71092148"], [116, "Rua Guia Lopes", "-22.5226287", "-55.70809409"], [117, "Rua Tapirape", "-22.51976429", "-55.70817687"], [118, "Rua Clodomiro Novaes", "-22.52065237", "-55.71061132"], [119, "Rua Ramon Franco", "-22.52099862", "-55.71334681"], [120, "Rua Santo Angelo", "-22.52076238", "-55.7192672"], [121, "Rua Tamoio", "-22.520711", "-55.72198"], [122, "Rua Honopolis", "-22.52049352", "-55.72694745"], [123, "Rua Andorinha", "-22.5208314", "-55.7299954"], [124, "Rua Locomotiva", "-22.520461", "-55.733855"], [125, "Rua 25 de Marco", "-22.521267", "-55.738647"], [126, "Rua Salgado Filho", "-22.51668534", "-55.74004556"], [127, "Rua Coronel Santana", "-22.51672091", "-55.73791244"], [128, "Rua Pedro Angelo", "-22.51642095", "-55.73429687"], [129, "Sao Luiz", "-22.5167767", "-55.73001809"], [130, "Corinto", "-22.5167321", "-55.7270745"], [131, "Arariba", "-22.51692195", "-55.72226979"], [132, "Travessa Adorinan Barbosa", "-22.51666426", "-55.71834303"], [133, "Hilario Pores", "-22.5166048", "-55.71508147"], [134, "Rua das Perobas", "-22.51713999", "-55.71058231"], [135, "Rua 23 de Abril", "-22.51692195", "-55.70633369"], [136, "Mexico", "-22.51231232", "-55.70392708"], [137, "Costa e Silva", "-22.5130476", "-55.70696636"], [138, "Rua das Aroeiras", "-22.51364227", "-55.71127935"], [139, "Maria Auxiliadora", "-22.51341222", "-55.71906242"], [140, "Jatoba", "-22.51345428", "-55.72245168"], [141, "Corinto", "-22.51413263", "-55.72631777"], [142, "Porto Alegre", "-22.51295185", "-55.7304366"], [143, "Porto Alegre", "-22.51302464", "-55.73040338"], [144, "Rio Preto", "-22.51428001", "-55.73879428"], [145, "MS-164", "-22.51393", "-55.74166"], [146, "MS-164", "-22.50933567", "-55.744296"], [147, "Rua da Bandeira", "-22.50883043", "-55.73752262"], [148, "General Andrade Neves", "-22.50971212", "-55.73386945"], [149, "Perpetuo Socorro", "-22.51078678", "-55.74051427"], [150, "Jasmin", "-22.50989823", "-55.72941014"], [151, "Sapucaia", "-22.50955027", "-55.72637296"], [152, "Sapucaia", "-22.50954528", "-55.72227699"], [153, "Inhacaru", "-22.5098164", "-55.71878692"], [154, "Agabito Boeira", "-22.50968729", "-55.71406155"], [155, "Agapito Boeira", "-22.50867622", "-55.71014729"], [156, "Equador", "-22.50910193", "-55.70632434"], [157, "Dinamarca", "-22.50983738", "-55.70268828"], [158, "Nicaragua", "-22.50757063", "-55.70345055"], [159, "Av. Estoril", "-22.50477635", "-55.70510288"], [160, "Fernando Peralta", "-22.50627046", "-55.71051287"], [161, "Belmiro de Albuquerque", "-22.50617558", "-55.71445937"], [162, "Rua Ezzat Georges", "-22.50568773", "-55.71852948"], [163, "Pitombeiras", "-22.50587262", "-55.72260522"], [164, "Belmiro de Albuquerque", "-22.50610628", "-55.72592202"], [165, "Osvaldo Cruz", "-22.50600445", "-55.73075797"], [166, "Rua Acre", "-22.50542325", "-55.73375148"], [167, "Padre Pedro John Luiz", "-22.50534592", "-55.73772283"], [168, "Professor Milton Froes", "-22.50514894", "-55.74050527"], [169, "Av. da Flora", "-22.50701371", "-55.74597973"], [170, "Rua Projetada 04", "-22.50146106", "-55.74452021"], [171, "Rua Marcelo Gonzalez Reichardt", "-22.50139", "-55.74182"], [172, "Nelson Monfort", "-22.5031051", "-55.7374472"], [173, "Av. Belmiro de Albuquerque", "-22.5028065", "-55.7343831"], [174, "Rua Astolfo do Amaral", "-22.5022768", "-55.7299891"], [175, "Rua Jabuticabeira", "-22.5031554", "-55.7251693"], [176, "Rua Laranjeira", "-22.5027842", "-55.7227262"], [177, "Rua Vacaria", "-22.5026854", "-55.7188097"], [178, "Rua Lucelia", "-22.5024656", "-55.714133"], [179, "Rua Guaruja", "-22.5025676", "-55.7108878"], [180, "Alameda Caribe", "-22.50032085", "-55.7061126"], [181, "Rua Dinamarca", "-22.50231468", "-55.70325266"], [182, "Rua Magdalena J. Hernandez", "-22.50017222", "-55.7112595"], [183, "Rua Lucelia", "-22.50053678", "-55.71331495"], [184, "Rua Pessegueiro", "-22.50001124", "-55.71985932"], [185, "Rua Pindauva", "-22.49946231", "-55.72355661"], [186, "Rua Januario Paz", "-22.49819668", "-55.72689149"], [187, "Rua do Norte", "-22.49924843", "-55.72966519"], [188, "Rua Jacipora", "-22.49783745", "-55.73461993"], [189, "Rua Goncalves Dias", "-22.4979825", "-55.73792295"], [190, "Maria Radeche", "-22.499738", "-55.743368"], [191, "Belmiro de Albuquerque", "-22.497666", "-55.744722"], [192, "Rodovia MS-164", "-22.49617872", "-55.74713457"], [193, "Rua Algacyr Pissini", "-22.4963156", "-55.74048373"], [194, "Rua Algacyr Pissini", "-22.49588845", "-55.73763849"], [195, "Iandara", "-22.49698481", "-55.73384094"], [196, "Rua dos Prefeitos", "-22.49655419", "-55.72997727"], [197, "Rua Januario Rodrigues da Paz", "-22.49650967", "-55.7263839"], [198, "Vital Brasil (Antiga Junior)", "-22.49486894", "-55.72217485"], [199, "Rua Joaquim Murtinho", "-22.4913259", "-55.7222522"], [200, "Rua Vital Brasil", "-22.49086615", "-55.71996829"], [201, "Vital Brasil", "-22.48809281", "-55.71958501"], [202, "Rua Juazeiro", "-22.48731823", "-55.72204307"], [203, "Rua Imperatriz", "-22.487507", "-55.725334"], [204, "Rua Jacy", "-22.4873515", "-55.7298789"], [205, "Rua Roncador", "-22.48818079", "-55.73509419"], [206, "Rua Roncador", "-22.48857311", "-55.73825811"], [207, "Rua Salinas", "-22.49072721", "-55.73705072"], [208, "Rua das Camelias", "-22.49098529", "-55.74134939"], [209, "Rua das Flores", "-22.49171739", "-55.74485373"], [210, "Rua Formosa", "-22.48803216", "-55.74071125"], [211, "MS-164", "-22.48732976", "-55.74644901"], [212, "MS-164", "-22.48434491", "-55.74671995"], [213, "Av. Lolia Carrilho Novaes", "-22.48470312", "-55.74143382"], [214, "Rua Azul (Posto de Saude)", "-22.48431027", "-55.73752904"], [215, "Av. Lolia Carrilho Novaes", "-22.48438909", "-55.73413104"], [216, "Rua Saude", "-22.48431098", "-55.72997452"], [217, "Rua Ibitanga", "-22.48419787", "-55.72657945"], [218, "Rua Camboriu", "-22.48409003", "-55.7223647"], [219, "Rua Cidade Verde", "-22.48428143", "-55.71967194"], [220, "Rua Joao Paulo VI", "-22.4822464", "-55.72575502"], [221, "Rua dos Engenheiros", "-22.48195", "-55.72962"], [222, "Rua Cezar Jara Quintana", "-22.4818576", "-55.73430094"], [223, "Rua Victor Danilo Antunes", "-22.482317", "-55.736981"], [224, "Rua Curvelo", "-22.47764278", "-55.74927862"], [225, "Sem endereço informado", "-22.61780073", "-55.6324768"], [226, "Sem endereço informado", "-22.61900238", "-55.62891483"], [227, "Sem endereço informado", "-22.61898257", "-55.62496662"], [228, "Sem endereço informado", "-22.61882411", "-55.62097549"], [229, "Sem endereço informado", "-22.61870527", "-55.61697185"], [230, "Sem endereço informado", "-22.61897267", "-55.6134206"], [231, "Sem endereço informado", "-22.62203285", "-55.61314344"], [232, "Sem endereço informado", "-22.62165652", "-55.61734914"], [233, "Sem endereço informado", "-22.62201304", "-55.62108278"], [234, "Sem endereço informado", "-22.62193381", "-55.62513828"], [235, "Sem endereço informado", "-22.62169613", "-55.62900066"], [236, "Sem endereço informado", "-22.62032945", "-55.63131809"], [237, "Sem endereço informado", "-22.62448886", "-55.62760591"], [238, "Sem endereço informado", "-22.62547918", "-55.62505245"], [239, "Sem endereço informado", "-22.62559802", "-55.62116861"], [240, "Sem endereço informado", "-22.62488499", "-55.61730623"], [241, "Sem endereço informado", "-22.62488499", "-55.61348676"], [242, "Sem endereço informado", "-22.62059561", "-55.60855206"]];
+
+/* Registro de correções. Nenhuma coordenada é alterada em silêncio:
+   toda correção deve ser feita aqui e aparece no painel de conferência. */
+const CORRECOES = []; // { id, campo:'lat'|'lon'|'endereco', de, para, motivo, data, responsavel }
+
+const CENTRO = [-22.536, -55.726];
+const GCOL = ['#d90429','#7b2cbf','#1b8a2f','#e36414','#1d4ed8','#0a9396','#c9184a','#8a6d00','#6a040f','#0b525b'];
+
+/* Modelo pronto para dados futuros (agente, equipe, datas, ovos, situação, foto, observação, histórico, status) */
+const pts = RAW.map(r => ({
+  id: r[0], endereco: r[1], latRaw: r[2], lonRaw: r[3],
+  lat: parseFloat(r[2]), lon: parseFloat(r[3]),
+  semEndereco: /^Sem endere/i.test(r[1]),
+  agente: null, equipe: null, dataInstalacao: null, dataRecolhimento: null,
+  ovos: null, situacao: null, foto: null, observacao: null, historico: [], status: null,
+  grupo: null, marker: null
+}));
+const byId = {}; pts.forEach(o => byId[o.id] = o);
+
+/* ===================== utilidades ===================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast.t); toast.t=setTimeout(()=>t.style.display='none',3200); }
+function hav(a,b,c,d){ const p=Math.PI/180,x=Math.sin((c-a)*p/2)**2+Math.cos(a*p)*Math.cos(c*p)*Math.sin((d-b)*p/2)**2; return 2*6371*Math.asin(Math.sqrt(x)); }
+const linkAbrir = o => `https://www.google.com/maps/search/?api=1&query=${o.latRaw},${o.lonRaw}`;
+const linkNavegar = o => `https://www.google.com/maps/dir/?api=1&destination=${o.latRaw},${o.lonRaw}&travelmode=driving`;
+
+function parseIds(str){
+  const out=new Set(), bad=[];
+  String(str).split(/[,;\s]+/).filter(Boolean).forEach(t=>{
+    const m=t.match(/^(\d+)\s*[-–—]\s*(\d+)$/);
+    if(m){ let a=+m[1],b=+m[2]; if(a>b)[a,b]=[b,a]; if(a<1||b>242){bad.push(t);return;} for(let i=a;i<=b;i++) out.add(i); }
+    else if(/^\d+$/.test(t)){ const n=+t; if(n>=1&&n<=242) out.add(n); else bad.push(t); }
+    else bad.push(t);
+  });
+  return {ids:[...out].sort((a,b)=>a-b), bad};
+}
+function compress(ids){
+  const s=[...ids].sort((a,b)=>a-b), out=[]; let i=0;
+  while(i<s.length){ let j=i; while(j+1<s.length&&s[j+1]===s[j]+1) j++; out.push(j>i+1? `${s[i]}-${s[j]}` : s.slice(i,j+1).join(', ')); i=j+1; }
+  return out.join(', ');
+}
+
+/* ===================== mapa ===================== */
+const map = L.map('map',{zoomControl:true, zoomSnap:0.5}).setView(CENTRO,13);
+const osm = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,crossOrigin:true,attribution:'Mapa © Esri, HERE, Garmin, OpenStreetMap contributors'});
+const sat = L.layerGroup([
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,crossOrigin:true,attribution:'Imagens © Esri, Maxar, Earthstar Geographics'}),
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,crossOrigin:true,opacity:.9})
+]);
+osm.addTo(map);
+L.control.layers({'Mapa (ruas)':osm,'Satélite':sat},null,{position:'topright',collapsed:false}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+const layer = L.layerGroup().addTo(map);
+
+function zoomClass(m){
+  const z=m.getZoom(), c=m.getContainer();
+  c.classList.remove('z-s','z-m','z-l','z-x');
+  c.classList.add(m._fixed||(z<=13?'z-s':z<=14?'z-m':z<=15?'z-l':'z-x'));
+}
+map.on('zoomend',()=>zoomClass(map)); zoomClass(map);
+
+const sel = new Set();
+let filter='all', field=false;
+
+/* enquadra só os pontos informados, em zoom inteiro (nome das ruas nítido) e marcadores menores */
+function fitLegivel(m,list,pad){
+  m._fixed='z-m';
+  const ll=list.map(o=>[o.lat,o.lon]);
+  if(ll.length===1){ m.setView(ll[0],18,{animate:false}); zoomClass(m); return; }
+  const b=L.latLngBounds(ll);
+  let z=Math.floor(m.getBoundsZoom(b,false,L.point(pad*2,pad*2+40)));
+  z=Math.max(10,Math.min(18,z));
+  m.setView(b.getCenter(),z,{animate:false});
+  zoomClass(m);
+}
+function aguardaTiles(el,ms){
+  return new Promise(res=>{
+    const t0=Date.now();
+    (function chk(){
+      const tl=[...el.querySelectorAll('.leaflet-tile')];
+      const ok=tl.length&&tl.every(i=>i.classList.contains('leaflet-tile-loaded'));
+      if(ok||Date.now()-t0>ms) setTimeout(res,350); else setTimeout(chk,150);
+    })();
+  });
+}
+
+function iconFor(o, plain){
+  const c=['mk']; const isSel=!plain && sel.has(o.id);
+  if(isSel) c.push('sel'); if(o.id>=100) c.push('n3');
+  const bg=(!isSel && o.grupo!=null)? `--bg:${GCOL[o.grupo%GCOL.length]}` : '';
+  return L.divIcon({className:'mk-wrap',html:`<div class="${c.join(' ')}" style="${bg}"><span class="num">${o.id}</span><svg class=\"pot\" viewBox=\"0 0 28 28\" aria-hidden=\"true\"><path d=\"M17.5 1.5l4 1.2-4.4 10.6-3.2-1z\" fill=\"#d9a15b\" stroke=\"#6b4217\" stroke-width=\"1\"/><path d=\"M5 9.5L7.3 25c.1 1 .9 1.7 1.9 1.7h9.6c1 0 1.8-.7 1.9-1.7L23 9.5z\" fill=\"#1a1a1a\" stroke=\"#fff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><ellipse class=\"rim\" cx=\"14\" cy=\"9.5\" rx=\"9\" ry=\"3.2\" stroke=\"#fff\" stroke-width=\"1.6\"/><ellipse cx=\"14\" cy=\"9.5\" rx=\"6.4\" ry=\"2\" fill=\"#4aa8e8\"/></svg></div>`,iconSize:[0,0]});
+}
+
+function alertasDe(id){ return (VAL||[]).filter(v=>v.id===id); }
+function popupHtml(o){
+  const al=alertasDe(o.id).filter(v=>v.nivel!=='info');
+  return `<div class="pp">
+    <div class="pp-id">Ovitrampa ${o.id}</div>
+    <div class="pp-addr">${esc(o.endereco)}</div>
+    <div class="pp-coord">Lat ${esc(o.latRaw)} · Lon ${esc(o.lonRaw)}</div>
+    <a class="btn" target="_blank" rel="noopener" href="${linkAbrir(o)}">Abrir no Google Maps</a>
+    <a class="btn nav" target="_blank" rel="noopener" href="${linkNavegar(o)}">Navegar até a ovitrampa</a>
+    <button class="btn" type="button" onclick="toggleSel(${o.id})">${sel.has(o.id)?'Remover da seleção':'Selecionar'}</button>
+    ${al.length?`<div class="pp-warn">⚠ ${al.map(a=>esc(a.tipo)).join('; ')} — conferir coordenada</div>`:''}
+  </div>`;
+}
+pts.forEach(o=>{
+  o.marker=L.marker([o.lat,o.lon],{icon:iconFor(o),title:'Ovitrampa '+o.id,riseOnHover:true,keyboard:true});
+  o.marker.bindPopup(()=>popupHtml(o),{maxWidth:300,autoPanPadding:[40,40]});
+});
+
+function inFilter(o){ if(filter==='all') return true; const [a,b]=filter.split('-').map(Number); return o.id>=a&&o.id<=b; }
+function visibleList(){ return field ? pts.filter(o=>sel.has(o.id)) : pts.filter(inFilter); }
+function fitTo(list){
+  if(!list.length) return;
+  if(list.length===1){ map.setView([list[0].lat,list[0].lon],17); return; }
+  map.fitBounds(L.latLngBounds(list.map(o=>[o.lat,o.lon])),{padding:[60,60],maxZoom:17});
+}
+function refresh(fit){
+  const vis=new Set(visibleList().map(o=>o.id));
+  pts.forEach(o=>{ const on=layer.hasLayer(o.marker); if(vis.has(o.id)){ if(!on) layer.addLayer(o.marker);} else if(on) layer.removeLayer(o.marker); });
+  $('cVis').textContent=vis.size; $('cSel').textContent=sel.size;
+  $('fieldMode').checked=field;
+  $('ids').value = compress(sel);
+  document.querySelectorAll('#chips .chip').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.f===filter)));
+  if(fit) fitTo(visibleList());
+}
+function reicon(ids){ (ids||pts.map(o=>o.id)).forEach(id=>byId[id].marker.setIcon(iconFor(byId[id]))); }
+
+window.toggleSel = function(id){
+  if(sel.has(id)) sel.delete(id); else sel.add(id);
+  reicon([id]); refresh(false);
+  const m=byId[id].marker; if(m.isPopupOpen()) m.setPopupContent(popupHtml(byId[id]));
+};
+
+/* filtros */
+document.querySelectorAll('#chips .chip').forEach(b=>b.addEventListener('click',()=>{
+  filter=b.dataset.f; field=false; refresh(true);
+}));
+$('selFilter').addEventListener('click',()=>{
+  const l=pts.filter(inFilter); l.forEach(o=>sel.add(o.id)); reicon(l.map(o=>o.id)); refresh(false);
+  toast(`${l.length} ovitrampas adicionadas à seleção`);
+});
+
+/* mapa de campo */
+$('apply').addEventListener('click',()=>{
+  const {ids,bad}=parseIds($('ids').value);
+  if(bad.length) toast('Não reconhecido: '+bad.join(', '));
+  if(!ids.length){ if(!bad.length) toast('Digite os números das ovitrampas.'); return; }
+  const old=[...sel]; sel.clear(); ids.forEach(i=>sel.add(i));
+  reicon([...new Set([...old,...ids])]);
+  field=true; refresh(true); closeMenu();
+});
+$('clear').addEventListener('click',()=>{ const old=[...sel]; sel.clear(); reicon(old); field=false; refresh(true); });
+$('fieldMode').addEventListener('change',e=>{
+  if(e.target.checked && !sel.size){ e.target.checked=false; toast('Selecione ao menos uma ovitrampa.'); return; }
+  field=e.target.checked; refresh(true);
+});
+
+/* pesquisa */
+function buscar(txt){
+  const t=norm(txt.trim()); if(!t) return [];
+  if(/^\d+$/.test(t)){ const n=+t; const exact=byId[n]; const rest=pts.filter(o=>o.id!==n&&String(o.id).startsWith(t)).slice(0,6); return exact?[exact,...rest]:rest; }
+  return pts.filter(o=>norm(o.endereco).includes(t)).slice(0,12);
+}
+function irPara(o){
+  if(!visibleList().includes(o)){ filter='all'; field=false; refresh(false); toast('Filtro redefinido para “Todos” para mostrar este ponto.'); }
+  closeMenu(); $('sres').style.display='none';
+  map.setView([o.lat,o.lon],Math.max(map.getZoom(),17));
+  setTimeout(()=>o.marker.openPopup(),250);
+}
+$('q').addEventListener('input',e=>{
+  const r=buscar(e.target.value), box=$('sres');
+  if(!e.target.value.trim()){ box.style.display='none'; return; }
+  box.innerHTML = r.length? r.map(o=>`<button type="button" data-id="${o.id}"><b>${o.id}</b><span>${esc(o.endereco)}<small>${esc(o.latRaw)}, ${esc(o.lonRaw)}</small></span></button>`).join('') : '<div style="padding:12px;color:#587079">Nada encontrado.</div>';
+  box.style.display='block';
+});
+$('q').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const r=buscar(e.target.value); if(r[0]) irPara(r[0]); } });
+$('sres').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) irPara(byId[+b.dataset.id]); });
+document.addEventListener('click',e=>{ if(!e.target.closest('.search')) $('sres').style.display='none'; });
+
+/* menu móvel */
+function closeMenu(){ document.body.classList.remove('menu-open'); setTimeout(()=>map.invalidateSize(),50); }
+$('menuBtn').addEventListener('click',()=>document.body.classList.add('menu-open'));
+$('closeMenu').addEventListener('click',closeMenu);
+
+/* ===================== agrupamento por proximidade (prévia) ===================== */
+function kmeans(list,k){
+  const kx=Math.cos(-22.5*Math.PI/180);
+  const P=list.map(o=>[o.lon*kx,o.lat]);
+  const d2=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2;
+  let first=0; P.forEach((p,i)=>{ if(p[0]<P[first][0]) first=i; });
+  const C=[P[first].slice()];
+  while(C.length<k){ let best=-1,bd=-1; P.forEach((p,i)=>{ const d=Math.min(...C.map(c=>d2(p,c))); if(d>bd){bd=d;best=i;} }); C.push(P[best].slice()); }
+  let asg=new Array(P.length).fill(0);
+  for(let it=0;it<40;it++){
+    let moved=false;
+    P.forEach((p,i)=>{ let b=0,bd=Infinity; C.forEach((c,j)=>{ const d=d2(p,c); if(d<bd){bd=d;b=j;} }); if(asg[i]!==b){asg[i]=b;moved=true;} });
+    C.forEach((c,j)=>{ const m=P.filter((_,i)=>asg[i]===j); if(m.length){ c[0]=m.reduce((s,p)=>s+p[0],0)/m.length; c[1]=m.reduce((s,p)=>s+p[1],0)/m.length; } });
+    if(!moved) break;
+  }
+  return asg;
+}
+let grupos=[];
+$('group').addEventListener('click',()=>{
+  const list=visibleList(); if(list.length<2){ toast('Poucos pontos visíveis para agrupar.'); return; }
+  const size=Math.max(5,Math.min(60,+$('gsize').value||20));
+  const k=Math.max(1,Math.round(list.length/size));
+  const asg=kmeans(list,k);
+  pts.forEach(o=>o.grupo=null);
+  const buckets=Array.from({length:k},()=>[]);
+  list.forEach((o,i)=>buckets[asg[i]].push(o));
+  grupos=buckets.filter(b=>b.length).sort((a,b)=>Math.min(...a.map(o=>o.lon))-Math.min(...b.map(o=>o.lon)));
+  grupos.forEach((g,i)=>g.forEach(o=>o.grupo=i));
+  reicon(); renderGrupos(); toast(`${grupos.length} grupos criados`);
+});
+$('ungroup').addEventListener('click',()=>{ pts.forEach(o=>o.grupo=null); grupos=[]; reicon(); renderGrupos(); });
+function renderGrupos(){
+  $('groups').innerHTML=grupos.map((g,i)=>`<button type="button" data-g="${i}"><i style="background:${GCOL[i%GCOL.length]}"></i>G${i+1} · ${g.length}</button>`).join('');
+}
+$('groups').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const g=grupos[+b.dataset.g]; const old=[...sel]; sel.clear(); g.forEach(o=>sel.add(o.id));
+  reicon([...new Set([...old,...g.map(o=>o.id)])]); field=true; refresh(true); closeMenu();
+  toast(`Grupo G${+b.dataset.g+1}: ${compress(g.map(o=>o.id))}`);
+});
+
+/* ===================== validação das coordenadas ===================== */
+function validar(){
+  const out=[]; const add=(o,nivel,tipo,msg)=>out.push({id:o?o.id:null,nivel,tipo,msg,end:o?o.endereco:'',lat:o?o.latRaw:'',lon:o?o.lonRaw:''});
+  const dec=/^-?\d{1,3}\.\d+$/, casas=s=>(s.split('.')[1]||'').length;
+  pts.forEach(o=>{
+    if(!dec.test(o.latRaw)) add(o,'erro','Formato da latitude','Latitude não está em formato decimal: '+o.latRaw);
+    if(!dec.test(o.lonRaw)) add(o,'erro','Formato da longitude','Longitude não está em formato decimal: '+o.lonRaw);
+    if(!isFinite(o.lat)||!isFinite(o.lon)) { add(o,'erro','Valor inválido','Não foi possível converter as coordenadas em número.'); return; }
+    if(o.lat<-23.0||o.lat>-22.2||o.lon<-56.0||o.lon>-55.3) add(o,'erro','Fora de Ponta Porã','Coordenada fora da região esperada do município.');
+    if(Math.min(casas(o.latRaw),casas(o.lonRaw))<=4) add(o,'atenção','Precisão baixa','Coordenada com 4 casas decimais ou menos (erro possível de ~10 m).');
+    if(o.semEndereco) add(o,'info','Sem endereço','Endereço não informado na base; localizar só pelas coordenadas.');
+  });
+  const ok=pts.filter(o=>isFinite(o.lat)&&isFinite(o.lon));
+  /* grupos geográficos separados */
+  const par=ok.map((_,i)=>i); const f=i=>par[i]===i?i:(par[i]=f(par[i]));
+  for(let i=0;i<ok.length;i++) for(let j=i+1;j<ok.length;j++) if(hav(ok[i].lat,ok[i].lon,ok[j].lat,ok[j].lon)<1.5) par[f(i)]=f(j);
+  const comps={}; ok.forEach((o,i)=>(comps[f(i)]=comps[f(i)]||[]).push(o));
+  const lista=Object.values(comps).sort((a,b)=>b.length-a.length), main=lista[0]||[];
+  lista.slice(1).forEach(c=>{
+    const dist=Math.min(...c.flatMap(a=>main.map(b=>hav(a.lat,a.lon,b.lat,b.lon))));
+    const ids=compress(c.map(o=>o.id));
+    c.forEach(o=>add(o,'atenção','Grupo geográfico isolado',`Faz parte de um conjunto de ${c.length} pontos (${ids}) a ${dist.toFixed(1)} km do grupo principal. Confirmar se a região está correta.`));
+  });
+  /* sobreposição e isolamento */
+  ok.forEach((a,i)=>{
+    let nn=Infinity;
+    ok.forEach((b,j)=>{ if(i===j) return; const d=hav(a.lat,a.lon,b.lat,b.lon)*1000; if(d<nn) nn=d; if(j>i&&d<25) add(a,'atenção','Pontos quase sobrepostos',`A ${d.toFixed(0)} m da ovitrampa ${b.id}. Pode ser duplicidade.`), add(b,'atenção','Pontos quase sobrepostos',`A ${d.toFixed(0)} m da ovitrampa ${a.id}. Pode ser duplicidade.`); });
+    if(nn>600 && main.includes(a)) add(a,'info','Ponto isolado',`Vizinho mais próximo a ${nn.toFixed(0)} m — conferir se não é erro de digitação.`);
+  });
+  /* componentes idênticos */
+  [['latRaw','Latitude'],['lonRaw','Longitude']].forEach(([k,nome])=>{
+    const m={}; ok.forEach(o=>{ if(casas(o[k])>=6)(m[o[k]]=m[o[k]]||[]).push(o); });
+    Object.entries(m).filter(([,l])=>l.length>1).forEach(([v,l])=>l.forEach(o=>add(o,'atenção',nome+' repetida',`${nome} ${v} idêntica nas ovitrampas ${l.map(x=>x.id).join(', ')}. Pode ser cópia.`)));
+  });
+  const rank={erro:0,'atenção':1,info:2};
+  return out.sort((a,b)=>(a.id-b.id)||(rank[a.nivel]-rank[b.nivel]));
+}
+const VAL=validar();
+
+function renderSummary(){
+  const c={erro:0,'atenção':0,info:0}; VAL.forEach(v=>c[v.nivel]++);
+  const ptsComAlerta=new Set(VAL.filter(v=>v.nivel!=='info').map(v=>v.id)).size;
+  $('valsum').innerHTML=`<span class="pill erro">${c.erro} erros</span><span class="pill atenção">${c['atenção']} atenções</span><span class="pill info">${c.info} informativos</span>`;
+  $('valnote').textContent=`Formato decimal e região verificados nos 242 pontos. ${ptsComAlerta} pontos pedem conferência manual. Nenhuma coordenada foi alterada.`;
+  $('valInfo').textContent=`Formato decimal, região esperada, grupos isolados, pontos sobrepostos e precisão foram verificados automaticamente. A lista indica o que conferir; as coordenadas originais foram mantidas.`;
+  $('corrInfo').textContent=CORRECOES.length? '' : 'Nenhuma coordenada foi corrigida. Se isso for necessário, a alteração deve ser registrada em CORRECOES (id, campo, valor antigo, valor novo, motivo, data) e aparecerá aqui.';
+}
+function renderVal(){
+  const lv=$('vlvl').value;
+  $('vbody').innerHTML=VAL.filter(v=>!lv||v.nivel===lv).map(v=>`<tr>
+    <td>${v.id?`<button class="idb" type="button" data-id="${v.id}">${v.id}</button>`:'—'}</td>
+    <td><span class="lvl ${v.nivel}">${v.nivel}</span></td><td>${esc(v.tipo)}</td>
+    <td>${esc(v.msg)}<br><small style="color:#587079">${esc(v.end)}</small></td>
+    <td style="white-space:nowrap;font-variant-numeric:tabular-nums">${esc(v.lat)}<br>${esc(v.lon)}</td></tr>`).join('') || '<tr><td colspan="5">Nenhum alerta neste filtro.</td></tr>';
+  if(CORRECOES.length){ $('corrInfo').innerHTML=CORRECOES.map(c=>`#${c.id} ${esc(c.campo)}: ${esc(c.de)} → ${esc(c.para)} (${esc(c.motivo)}, ${esc(c.data)})`).join('<br>'); }
+}
+$('openVal').addEventListener('click',()=>{ renderVal(); $('val').style.display='flex'; });
+$('vclose').addEventListener('click',()=>$('val').style.display='none');
+$('val').addEventListener('click',e=>{ if(e.target===$('val')) $('val').style.display='none'; });
+$('vlvl').addEventListener('change',renderVal);
+$('vbody').addEventListener('click',e=>{ const b=e.target.closest('.idb'); if(!b) return; $('val').style.display='none'; irPara(byId[+b.dataset.id]); });
+function baixar(nome,conteudo,tipo){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([conteudo],{type:tipo})); a.download=nome; document.body.appendChild(a); a.click(); a.remove(); }
+$('csv').addEventListener('click',()=>{
+  const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+  const linhas=[['ID','Nível','Tipo','Descrição','Endereço','Latitude','Longitude'].join(';')].concat(VAL.map(v=>[v.id||'',v.nivel,q(v.tipo),q(v.msg),q(v.end),v.lat,v.lon].join(';')));
+  baixar('conferencia-coordenadas-ovitrampas.csv','\ufeff'+linhas.join('\n'),'text/csv;charset=utf-8');
+});
+$('json').addEventListener('click',()=>{
+  const base=pts.map(({marker,grupo,latRaw,lonRaw,semEndereco,...r})=>r);
+  baixar('base-ovitrampas.json',JSON.stringify({gerado:new Date().toISOString(),correcoes:CORRECOES,ovitrampas:base},null,2),'application/json');
+});
+
+/* ===================== folha de campo ===================== */
+let sMap=null, sTiles=[], sReady=false;
+function selList(){ return [...sel].sort((a,b)=>a-b).map(id=>byId[id]); }
+function abrirFolha(){
+  const lista=selList();
+  if(!lista.length){ toast('Selecione ao menos uma ovitrampa para gerar o mapa.'); return; }
+  $('shCount').textContent=`${lista.length} ovitrampa${lista.length>1?'s':''}`;
+  $('shDate').textContent=new Date().toLocaleDateString('pt-BR');
+  $('shList').innerHTML=lista.map(o=>`<div class="sh-item"><span class="n" style="${o.grupo!=null?'--bg:'+GCOL[o.grupo%GCOL.length]:''}">${o.id}</span><span><b>${esc(o.endereco)}</b><small>${esc(o.latRaw)}, ${esc(o.lonRaw)}</small></span></div>`).join('');
+  $('sheet').style.display='block'; document.body.style.overflow='hidden';
+  $('sStatus').textContent='Carregando mapa…'; sReady=false;
+  if(sMap){ sMap.remove(); sMap=null; }
+  sMap=L.map('sheetMap',{zoomControl:false,zoomSnap:0.25,fadeAnimation:false,zoomAnimation:false,markerZoomAnimation:false});
+  const satelite=map.hasLayer(sat);
+  const tl=[];
+  if(satelite){
+    tl.push(L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,crossOrigin:true,attribution:'Imagens © Esri'}));
+    tl.push(L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,crossOrigin:true}));
+  } else tl.push(L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,crossOrigin:true,attribution:'Mapa © Esri, HERE, Garmin, OpenStreetMap contributors'}));
+  tl.forEach(t=>t.addTo(sMap)); sTiles=tl;
+  tl[0].on('load',()=>{ sReady=true; $('sStatus').textContent='Mapa pronto'; });
+  lista.forEach(o=>L.marker([o.lat,o.lon],{icon:iconFor(o,true),interactive:false}).addTo(sMap));
+  sMap.on('zoomend',()=>zoomClass(sMap));
+  sMap.invalidateSize();
+  fitLegivel(sMap,lista,55);
+  if(navigator.canShare && navigator.canShare({files:[new File([''],'a.png',{type:'image/png'})]})) $('sShare').style.display='inline-block';
+}
+function fecharFolha(){ $('sheet').style.display='none'; document.body.style.overflow=''; setTimeout(()=>map.invalidateSize(),50); }
+$('gen').addEventListener('click',abrirFolha);
+$('sBack').addEventListener('click',fecharFolha);
+$('sPrint').addEventListener('click',()=>{ const t=document.title; document.title='Mapa de campo - ovitrampas '+compress(sel); window.print(); setTimeout(()=>document.title=t,500); });
+async function gerarPng(){
+  if(!sReady) toast('O mapa ainda está carregando; tente de novo em instantes.');
+  $('sStatus').textContent='Gerando imagem…';
+  const canvas=await html2canvas($('sheetPage'),{useCORS:true,scale:2,backgroundColor:'#ffffff',logging:false});
+  $('sStatus').textContent='Pronto';
+  return new Promise(res=>canvas.toBlob(res,'image/png'));
+}
+$('sPng').addEventListener('click',async()=>{
+  try{ const b=await gerarPng(); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='mapa-campo-ovitrampas.png'; document.body.appendChild(a); a.click(); a.remove(); }
+  catch(e){ toast('Não foi possível gerar a imagem. Use “Imprimir / salvar PDF”.'); $('sStatus').textContent=''; }
+});
+$('sShare').addEventListener('click',async()=>{
+  try{ const b=await gerarPng(); await navigator.share({files:[new File([b],'mapa-campo-ovitrampas.png',{type:'image/png'})],title:'Mapa de campo — ovitrampas'}); }
+  catch(e){ if(e.name!=='AbortError') toast('Não foi possível compartilhar. Use “Baixar imagem”.'); }
+});
+$('sWa').addEventListener('click',()=>{
+  const l=selList();
+  const txt=`*Ovitrampas — Ponta Porã/MS*\n${l.length} ponto(s) para visita\n\n`+l.map(o=>`*${o.id}* — ${o.endereco}\n${linkNavegar(o)}`).join('\n\n');
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+});
+
+/* print do mapa: enquadra só as selecionadas, zoom nítido, nomes das ruas legíveis */
+$('shotBtn').addEventListener('click',async()=>{
+  const btn=$('shotBtn'); btn.disabled=true; btn.textContent='Gerando…';
+  const salvo={c:map.getCenter(),z:map.getZoom(),field:field,fixed:map._fixed};
+  try{
+    map.closePopup();
+    const lista=sel.size? selList() : visibleList();
+    if(sel.size){ field=true; refresh(false); }
+    map.invalidateSize();
+    fitLegivel(map,lista,60);
+    await aguardaTiles($('map'),9000);
+    const canvas=await html2canvas($('map'),{useCORS:true,scale:3,logging:false,backgroundColor:'#ffffff',
+      ignoreElements:el=>el.classList&&(el.classList.contains('leaflet-control-zoom')||el.classList.contains('leaflet-control-layers'))});
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+    const file=new File([blob],'print-mapa-ovitrampas.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:'Mapa — ovitrampas'}); }catch(e){ if(e.name!=='AbortError') throw e; } }
+    else{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); }
+  }catch(e){ toast('Não foi possível gerar o print. Use “GERAR MAPA PARA CAMPO” > Imprimir.'); }
+  field=salvo.field; map._fixed=salvo.fixed; refresh(false);
+  map.setView(salvo.c,salvo.z,{animate:false}); zoomClass(map);
+  btn.disabled=false; btn.textContent='📷 Print do mapa';
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('sheet').style.display==='block') fecharFolha(); else $('val').style.display='none'; } });
+
+/* ===================== início ===================== */
+renderSummary(); refresh(false);
+fitTo(pts);
+</script>
+</body>
+</html>
