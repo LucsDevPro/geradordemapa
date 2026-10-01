@@ -90,6 +90,14 @@ input[type=number]{width:84px;padding:9px 10px;border:2px solid var(--line);bord
 
 #shotBtn{position:absolute;right:12px;bottom:28px;z-index:1100;padding:11px 16px;border-radius:10px;border:0;background:var(--ink);color:#fff;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,.4)}
 #shotBtn:disabled{opacity:.6}
+#shotDlg{position:fixed;inset:0;background:rgba(15,42,51,.7);z-index:4500;display:none;align-items:center;justify-content:center;padding:12px}
+#shotDlg .box{background:#fff;border-radius:14px;max-width:min(96vw,980px);width:100%;max-height:96vh;display:flex;flex-direction:column;gap:10px;padding:14px;overflow:auto}
+#shotDlg h3{margin:0;font-size:18px}
+#shotDlg .pv{flex:1;min-height:0;display:flex;justify-content:center;background:#e9eef0;border-radius:8px;overflow:auto}
+#shotDlg .pv img{max-width:100%;max-height:62vh;object-fit:contain;display:block}
+#shotDlg .acts{display:flex;gap:8px;flex-wrap:wrap}
+#shotDlg .acts .btn{flex:1;min-width:120px}
+#shotDlg .inf{font-size:12.5px;color:var(--mute)}
 #menuBtn{display:none;position:absolute;top:12px;left:12px;z-index:1100;padding:11px 16px;border-radius:10px;border:0;background:var(--ink);color:#fff;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,.35)}
 
 /* painéis */
@@ -263,10 +271,24 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
   </div>
 </div>
 
+<div id="shotDlg" role="dialog" aria-modal="true" aria-labelledby="shotT">
+  <div class="box">
+    <h3 id="shotT">Print pronto</h3>
+    <div class="pv"><img id="shotImg" alt="Prévia do mapa"></div>
+    <div class="inf" id="shotInf"></div>
+    <div class="acts">
+      <button class="btn primary" id="shotPng" type="button">Salvar PNG</button>
+      <button class="btn primary" id="shotPdf" type="button">Salvar PDF</button>
+      <button class="btn" id="shotShare" type="button" style="display:none">Compartilhar</button>
+      <button class="btn ghost" id="shotClose" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 /* ===================== BASE OFICIAL (coordenação) =====================
    [ID, endereço, latitude, longitude] — texto original, sem alteração.
@@ -625,29 +647,165 @@ $('sWa').addEventListener('click',()=>{
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
 });
 
-/* print do mapa: enquadra só as selecionadas, zoom nítido, nomes das ruas legíveis */
-$('shotBtn').addEventListener('click',async()=>{
-  const btn=$('shotBtn'); btn.disabled=true; btn.textContent='Gerando…';
+/* ================= PRINT DO MAPA (PNG / PDF) ================= */
+let shotCanvas=null, shotBlob=null, shotNome='ovitrampas', shotLista=[];
+const nomeArq = lista => 'ovitrampas_'+compress(lista.map(o=>o.id)).replace(/[^0-9a-z-]+/gi,'_').slice(0,60);
+
+/* nitidez automática (usado só quando o mapa vetorial não está disponível) */
+function afinar(cv,a){
+  const ctx=cv.getContext('2d'), w=cv.width, h=cv.height;
+  const src=ctx.getImageData(0,0,w,h), d=src.data, out=ctx.createImageData(w,h), o=out.data;
+  const c=1+4*a;
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const i=(y*w+x)*4;
+      if(x===0||y===0||x===w-1||y===h-1){ o[i]=d[i];o[i+1]=d[i+1];o[i+2]=d[i+2];o[i+3]=d[i+3]; continue; }
+      const u=i-w*4, v=i+w*4;
+      for(let k=0;k<3;k++){
+        let val=c*d[i+k]-a*(d[u+k]+d[v+k]+d[i-4+k]+d[i+4+k]);
+        o[i+k]=val<0?0:val>255?255:val;
+      }
+      o[i+3]=255;
+    }
+  }
+  ctx.putImageData(out,0,0);
+}
+
+/* --- caminho 1 (melhor): mapa vetorial, nomes de ruas desenhados em alta resolução --- */
+let mlPromise=null;
+function carregaMapLibre(){
+  if(window.maplibregl) return Promise.resolve();
+  if(mlPromise) return mlPromise;
+  mlPromise=new Promise((res,rej)=>{
+    const l=document.createElement('link'); l.rel='stylesheet'; l.href='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css'; document.head.appendChild(l);
+    const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+    sc.onload=res; sc.onerror=()=>{ mlPromise=null; rej(new Error('maplibre')); };
+    document.head.appendChild(sc);
+  });
+  return mlPromise;
+}
+async function printVetorial(lista,satelite){
+  await carregaMapLibre();
+  const r=$('map').getBoundingClientRect();
+  const cw=720, ch=Math.max(480,Math.min(1100,Math.round(720*r.height/r.width))), PR=3;
+  const holder=document.createElement('div');
+  holder.style.cssText=`position:fixed;left:0;top:0;width:${cw}px;height:${ch}px;z-index:-1;pointer-events:none;background:#fff`;
+  document.body.appendChild(holder);
+  let m=null, ov=null;
+  try{
+    let style='https://tiles.openfreemap.org/styles/liberty';
+    if(satelite){
+      const js=await (await fetch(style)).json();
+      js.sources.sat={type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19};
+      js.layers=[{id:'sat',type:'raster',source:'sat'}].concat(js.layers.filter(l=>l.type==='symbol'));
+      style=js;
+    }
+    m=new maplibregl.Map({container:holder,style,center:[lista[0].lon,lista[0].lat],zoom:15,interactive:false,attributionControl:false,
+      preserveDrawingBuffer:true,pixelRatio:PR,fadeDuration:0,maxZoom:19});
+    if(lista.length===1) m.jumpTo({center:[lista[0].lon,lista[0].lat],zoom:17.5});
+    else{
+      const bb=new maplibregl.LngLatBounds(); lista.forEach(o=>bb.extend([o.lon,o.lat]));
+      m.fitBounds(bb,{padding:{top:105,bottom:60,left:70,right:70},maxZoom:18,duration:0});
+    }
+    await new Promise((res,rej)=>{
+      const t=setTimeout(()=>rej(new Error('timeout')),25000);
+      m.once('idle',()=>{ clearTimeout(t); res(); });
+      m.on('error',e=>{ if(!m.isStyleLoaded()){ clearTimeout(t); rej(e&&e.error||new Error('estilo')); } });
+    });
+    const gl=m.getCanvas();
+    const out=document.createElement('canvas'); out.width=gl.width; out.height=gl.height;
+    const ctx=out.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,out.width,out.height); ctx.drawImage(gl,0,0);
+    /* marcadores (pote + número) */
+    ov=document.createElement('div'); ov.className='z-l';
+    ov.style.cssText=`position:fixed;left:0;top:0;width:${cw}px;height:${ch}px;z-index:-1;pointer-events:none;overflow:hidden`;
+    lista.forEach(o=>{
+      const pt=m.project([o.lon,o.lat]); const w=document.createElement('div');
+      w.style.cssText=`position:absolute;left:${pt.x}px;top:${pt.y}px;width:0;height:0`;
+      w.innerHTML=iconFor(o,true).options.html; ov.appendChild(w);
+    });
+    document.body.appendChild(ov);
+    const mc=await html2canvas(ov,{backgroundColor:null,scale:PR,logging:false});
+    ctx.drawImage(mc,0,0,out.width,out.height);
+    /* atribuição */
+    const txt='© OpenStreetMap contributors · OpenFreeMap'+(satelite?' · Imagens © Esri':'');
+    ctx.font=`${11*PR}px sans-serif`; const tw=ctx.measureText(txt).width;
+    ctx.fillStyle='rgba(255,255,255,.85)'; ctx.fillRect(out.width-tw-14*PR,out.height-20*PR,tw+14*PR,20*PR);
+    ctx.fillStyle='#222'; ctx.textBaseline='middle'; ctx.fillText(txt,out.width-tw-7*PR,out.height-10*PR);
+    return out;
+  } finally {
+    try{ m&&m.remove(); }catch(e){}
+    holder.remove(); if(ov) ov.remove();
+  }
+}
+
+/* --- caminho 2 (reserva): captura da tela com nitidez aplicada --- */
+async function printRaster(lista){
   const salvo={c:map.getCenter(),z:map.getZoom(),field:field,fixed:map._fixed};
   try{
     map.closePopup();
-    const lista=sel.size? selList() : visibleList();
     if(sel.size){ field=true; refresh(false); }
     map.invalidateSize();
     fitLegivel(map,lista,60);
     await aguardaTiles($('map'),9000);
-    const canvas=await html2canvas($('map'),{useCORS:true,scale:3,logging:false,backgroundColor:'#ffffff',
+    const cv=await html2canvas($('map'),{useCORS:true,scale:3,logging:false,backgroundColor:'#ffffff',
       ignoreElements:el=>el.classList&&(el.classList.contains('leaflet-control-zoom')||el.classList.contains('leaflet-control-layers'))});
-    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
-    const file=new File([blob],'print-mapa-ovitrampas.png',{type:'image/png'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:'Mapa — ovitrampas'}); }catch(e){ if(e.name!=='AbortError') throw e; } }
-    else{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; document.body.appendChild(a); a.click(); a.remove(); }
-  }catch(e){ toast('Não foi possível gerar o print. Use “GERAR MAPA PARA CAMPO” > Imprimir.'); }
-  field=salvo.field; map._fixed=salvo.fixed; refresh(false);
-  map.setView(salvo.c,salvo.z,{animate:false}); zoomClass(map);
-  btn.disabled=false; btn.textContent='📷 Print do mapa';
+    afinar(cv,0.55);
+    return cv;
+  } finally {
+    field=salvo.field; map._fixed=salvo.fixed; refresh(false);
+    map.setView(salvo.c,salvo.z,{animate:false}); zoomClass(map);
+  }
+}
+
+function mostrarPrint(cv,lista,modo){
+  shotCanvas=cv; shotLista=lista; shotNome=nomeArq(lista);
+  cv.toBlob(b=>{
+    shotBlob=b;
+    if($('shotImg').dataset.u) URL.revokeObjectURL($('shotImg').dataset.u);
+    const u=URL.createObjectURL(b); $('shotImg').src=u; $('shotImg').dataset.u=u;
+    $('shotInf').textContent=`${lista.length} ovitrampa(s) · ${cv.width}×${cv.height} px · `+(modo==='vetor'?'ruas em alta resolução (vetorial)':'modo reserva: captura da tela com nitidez automática');
+    $('shotShare').style.display=(navigator.canShare&&navigator.canShare({files:[new File([b],'a.png',{type:'image/png'})]}))?'':'none';
+    $('shotDlg').style.display='flex';
+  },'image/png');
+}
+function baixar(blob,nome){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); }
+
+$('shotBtn').addEventListener('click',async()=>{
+  const btn=$('shotBtn'); btn.disabled=true; btn.textContent='Gerando…';
+  try{
+    const lista=sel.size? selList() : visibleList();
+    if(!lista.length){ toast('Nenhuma ovitrampa para o print.'); return; }
+    let cv, modo='vetor';
+    try{ cv=await printVetorial(lista,map.hasLayer(sat)); }
+    catch(e){ console.warn('Print vetorial indisponível, usando reserva:',e); modo='raster'; cv=await printRaster(lista); }
+    mostrarPrint(cv,lista,modo);
+  }catch(e){ console.error(e); toast('Não foi possível gerar o print. Use “GERAR MAPA PARA CAMPO” > Imprimir.'); }
+  finally{ btn.disabled=false; btn.textContent='📷 Print do mapa'; }
 });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('sheet').style.display==='block') fecharFolha(); else $('val').style.display='none'; } });
+$('shotClose').addEventListener('click',()=>{ $('shotDlg').style.display='none'; });
+$('shotPng').addEventListener('click',()=>{ if(shotBlob) baixar(shotBlob,shotNome+'.png'); });
+$('shotShare').addEventListener('click',async()=>{
+  try{ await navigator.share({files:[new File([shotBlob],shotNome+'.png',{type:'image/png'})],title:'Mapa — ovitrampas'}); }
+  catch(e){ if(e.name!=='AbortError') toast('Não foi possível compartilhar. Use “Salvar PNG”.'); }
+});
+$('shotPdf').addEventListener('click',()=>{
+  if(!window.jspdf){ toast('PDF indisponível (biblioteca não carregou). Use “Salvar PNG”.'); return; }
+  try{
+    const cv=shotCanvas, land=cv.width>=cv.height;
+    const pdf=new window.jspdf.jsPDF({orientation:land?'l':'p',unit:'mm',format:'a4'});
+    const W=pdf.internal.pageSize.getWidth(), H=pdf.internal.pageSize.getHeight(), mg=8, topo=mg+13;
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(14); pdf.text('Ovitrampas - Ponta Porã/MS',mg,mg+5);
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
+    const ids=compress(shotLista.map(o=>o.id));
+    pdf.text(`${shotLista.length} ponto(s): ${ids}   |   ${new Date().toLocaleDateString('pt-BR')}`,mg,mg+10,{maxWidth:W-2*mg});
+    const aw=W-2*mg, ah=H-topo-mg, k=Math.min(aw/cv.width,ah/cv.height);
+    const iw=cv.width*k, ih=cv.height*k;
+    pdf.addImage(cv.toDataURL('image/png'),'PNG',mg+(aw-iw)/2,topo,iw,ih);
+    pdf.save(shotNome+'.pdf');
+  }catch(e){ console.error(e); toast('Não foi possível gerar o PDF. Use “Salvar PNG”.'); }
+});
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('shotDlg').style.display==='flex') $('shotDlg').style.display='none'; else if($('sheet').style.display==='block') fecharFolha(); else $('val').style.display='none'; } });
 
 /* ===================== início ===================== */
 renderSummary(); refresh(false);
