@@ -23,6 +23,14 @@ button{cursor:pointer}
 
 .brand h1{font-size:25px;line-height:1.05;margin:0 0 4px;font-weight:800;letter-spacing:-.02em}
 .brand p{margin:0;color:var(--mute);font-size:13.5px}
+details.sec{margin-top:10px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+details.sec>summary{border-radius:10px;list-style:none;cursor:pointer;display:flex;align-items:center;gap:11px;padding:14px;font-size:15px;font-weight:800;color:var(--ink);user-select:none;-webkit-tap-highlight-color:transparent}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::before{content:'';flex:none;width:8px;height:8px;border-right:3px solid #007ECA;border-bottom:3px solid #007ECA;transform:rotate(-45deg);transition:transform .15s}
+details.sec[open]>summary::before{transform:rotate(45deg)}
+details.sec[open]>summary{border-radius:10px 10px 0 0;background:#eef4fa;border-bottom:1.5px solid var(--line)}
+details.sec>summary:focus-visible{outline:3px solid #007ECA;outline-offset:-3px}
+details.sec>.secbody{padding:4px 14px 16px}
 section{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
 section h2{font-size:15px;margin:0 0 10px;font-weight:800}
 .hint{color:var(--mute);font-size:13px;margin:6px 0 0}
@@ -76,6 +84,15 @@ input[type=number]{width:84px;padding:9px 10px;border:2px solid var(--line);bord
 .mk svg.pot .rim{fill:var(--bg,#ffc21a)}
 .mk.sel .num{background:var(--sel);color:#111;border-color:#1a56db;box-shadow:0 0 0 3px rgba(26,86,219,.6);text-shadow:none}
 .mk.sel svg.pot .rim{fill:var(--sel)}
+body.ov-on .mk .num,body.ov-on .mk[style*="--bg"] .num{border:3.5px solid var(--ov,#800080);box-shadow:0 0 0 1px #111,inset 0 0 0 1px rgba(0,0,0,.55)}
+body.ov-on .mk.sel{transform-origin:50% 100%;transform:translate(-50%,-100%) scale(1.15)}
+body.ov-on .mk.sel .num{box-shadow:0 0 0 1px #111,inset 0 0 0 1px rgba(0,0,0,.55),0 0 0 4px #fff,0 0 0 5.5px #111}
+.legov{background:rgba(255,255,255,.96);border:1.5px solid #111;border-radius:10px;padding:6px 9px;font:700 11.5px 'Archivo','Segoe UI',system-ui,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.legov summary{cursor:pointer;font-weight:800;list-style:none}
+.legov summary::-webkit-details-marker{display:none}
+.legov div{display:flex;align-items:center;gap:8px;margin-top:5px}
+.legov i{display:inline-block;width:22px;height:12px;border-radius:6px;border:1.5px solid #111;flex:none}
+
 .z-s{--m:22px;--f:10px}.z-m{--m:30px;--f:13px}.z-l{--m:38px;--f:16px}.z-x{--m:46px;--f:20px}
 
 .leaflet-popup-content{margin:14px 16px;min-width:236px;font-family:'Archivo','Segoe UI',system-ui,sans-serif}
@@ -103,11 +120,21 @@ input[type=number]{width:84px;padding:9px 10px;border:2px solid var(--line);bord
 #batchDlg{z-index:4600}
 .bar{height:12px;background:#e3eaec;border-radius:6px;overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .2s}
-#agents{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;max-height:200px;overflow:auto;padding:2px}
-#agents button{padding:6px 2px;border:1.5px solid var(--line);background:#fff;border-radius:8px;font-size:12px;line-height:1.25;font-weight:600}
-#agents button b{display:block;font-size:13px;font-weight:800}
-#agents button:hover{background:#eaf4f5}
-#agents button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+#agents{margin-top:10px;max-height:340px;overflow:auto;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+.agh{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--c,#002B68);color:#fff;font-size:12.5px;font-weight:800}
+.agh button{border:0;background:rgba(255,255,255,.22);color:#fff;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.agh button:hover{background:rgba(255,255,255,.38)}
+#agents button.ag{display:grid;grid-template-columns:1fr auto;gap:0 8px;width:100%;text-align:left;padding:8px 10px;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;cursor:pointer}
+#agents button.ag:hover{background:#eaf4f5}
+#agents button.ag.on{background:#fff4cc;box-shadow:inset 4px 0 0 #ffc21a}
+.ag .agn{font-weight:800;font-size:14px;color:var(--ink)}
+.ag .aga{grid-column:1;font-size:12px;color:var(--mute)}
+.ag .agm{grid-column:1;font-size:12px;color:var(--ink);font-weight:600}
+.ag .eqc{grid-column:2;grid-row:1/4;align-self:center;font-style:normal;font-weight:800;font-size:12px;color:#fff;border-radius:999px;padding:3px 9px}
+#agEq{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+#agEq button{padding:6px 11px;border:2px solid var(--line);background:#fff;border-radius:999px;font-size:12.5px;font-weight:700;cursor:pointer}
+#agEq button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+#agBusca,#agOrd,#bEq{width:100%;padding:10px 12px;border:2px solid var(--line);border-radius:10px;font-size:14px;background:#fff;margin-top:6px}
 #qual{padding:10px;border:2px solid var(--line);border-radius:8px;width:100%;background:#fff}
 #menuBtn{display:none;position:absolute;top:12px;left:12px;z-index:1100;padding:11px 16px;border-radius:10px;border:0;background:var(--ink);color:#fff;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,.35)}
 
@@ -172,7 +199,6 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
 #sheetLoad{padding:60px 20px;text-align:center;font-weight:700;color:var(--mute)}
 #agNome,#agEquipe{width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:10px;font-size:15px;margin-top:6px}
 #agNome:focus,#agEquipe:focus{border-color:var(--brand);outline:none}
-#agNomes{min-height:96px}
 #gCentro{display:none;gap:8px;align-items:center;margin-top:10px}
 #gManual{display:none;margin-top:10px}
 #gManual input{width:100%;padding:10px 12px;border:2px solid var(--line);border-radius:8px;margin-bottom:6px}
@@ -180,8 +206,17 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
 #gModo{padding:10px;border:2px solid var(--line);border-radius:8px;width:100%;background:#fff;margin-top:6px}
 .gl{position:absolute;left:3px;top:2px;font:800 12px 'Archivo','Segoe UI',sans-serif;white-space:nowrap;pointer-events:none}
 .gflag{position:absolute;left:0;top:0;transform:translate(0,-100%);background:#1a56db;color:#fff;font:800 12px 'Archivo','Segoe UI',sans-serif;padding:4px 9px;border-radius:6px;white-space:nowrap;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.55)}
+#hideMenu{display:none;flex:none;border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
+#hideMenu:hover{background:#eef4fa}
 #closeMenu{display:none;border:0;background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-weight:800;flex:none}
-@media (min-width:821px){.sidehead{display:block}}
+@media (min-width:821px){
+  .sidehead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  #hideMenu{display:block}
+  body.menu-hidden #app{grid-template-columns:1fr}
+  body.menu-hidden #side{display:none}
+  body.menu-hidden #mapwrap{grid-column:1}
+  body.menu-hidden #menuBtn{display:block;left:58px}
+}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
@@ -195,32 +230,49 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
         <p>Ponta Porã/MS · Vigilância em Saúde / Endemias</p>
       </div>
       <button id="closeMenu" type="button">Ver mapa</button>
+      <button id="hideMenu" type="button" title="Esconder o menu para ver o mapa maior">◀ Esconder menu</button>
     </div>
 
-    <section>
-      <h2>Pesquisar</h2>
-      <div class="search">
-        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Número, rua ou endereço" aria-label="Pesquisar ovitrampa">
-        <div id="sres" role="listbox"></div>
+    <details class="sec" open>
+      <summary>Agentes e equipes</summary>
+      <div class="secbody">
+      <input id="agBusca" type="search" placeholder="Buscar agente, área ou nº…" aria-label="Buscar agente" autocomplete="off">
+      <label for="agOrd" class="hint" style="margin:10px 0 0;display:block">Organizar por</label>
+      <select id="agOrd" aria-label="Organizar agentes por" style="width:100%;padding:10px 12px;border:2px solid var(--line);border-radius:10px;font-size:14px;background:#fff;margin-top:6px">
+        <option value="equipe" selected>Equipe (e nome dentro da equipe)</option>
+        <option value="nome">Nome do agente (A–Z)</option>
+        <option value="zona">Nº da zona</option>
+      </select>
+      <div id="agEq" role="group" aria-label="Filtrar por equipe"></div>
+      <p class="hint" id="bInfo"></p>
+      <div id="agents" aria-label="Agentes"></div>
+      <p class="hint">Toque num agente para ver as ovitrampas dele no mapa. Nome, área, zona e equipe entram sozinhos no print e no relatório. Em “ver equipe no mapa” aparecem todas as ovitrampas da equipe.</p>
       </div>
-      <p class="hint">Ex.: 101, Guia Lopes, Vital Brasil.</p>
-    </section>
+    </details>
 
-    <section>
-      <h2>Filtrar por faixa de números</h2>
-      <div class="chips" id="chips">
-        <button class="chip" data-f="1-50" aria-pressed="false">1–50</button>
-        <button class="chip" data-f="51-100" aria-pressed="false">51–100</button>
-        <button class="chip" data-f="101-150" aria-pressed="false">101–150</button>
-        <button class="chip" data-f="151-200" aria-pressed="false">151–200</button>
-        <button class="chip" data-f="201-242" aria-pressed="false">201–242</button>
-        <button class="chip" data-f="all" aria-pressed="true">Todos</button>
+    <details class="sec">
+      <summary>Gerar mapas em lote</summary>
+      <div class="secbody">
+      <label for="bEq" class="hint" style="margin:0;display:block">Equipe</label>
+      <select id="bEq" aria-label="Equipe do lote"></select>
+      <div class="row">
+        <label for="bfrom">Da zona</label>
+        <input id="bfrom" type="number" min="1" value="1">
+        <label for="bto">à</label>
+        <input id="bto" type="number" min="1" value="44">
       </div>
-      <div class="row"><button class="btn" id="selFilter" type="button">Selecionar todos desta faixa</button></div>
-    </section>
+      <label class="switch"><input type="checkbox" id="bPng" checked> PNG de cada agente</label>
+      <label class="switch"><input type="checkbox" id="bPdf" checked> PDF de cada agente</label>
+      <label class="switch"><input type="checkbox" id="bAll" checked> PDF único por equipe (1 página por agente)</label>
+      <button class="btn primary big" id="bGo" type="button">GERAR MAPAS EM LOTE</button>
+      <p class="hint" id="bResumo"></p>
+      <p class="hint">O .zip vem organizado em pastas por equipe (“Equipe 1”, “Equipe 2”…) com os arquivos de cada agente. Se escolher uma pasta em “Print e salvamento”, as pastas são criadas lá. Para muitos mapas, gere por equipe.</p>
+      </div>
+    </details>
 
-    <section>
-      <h2>Mapa de campo</h2>
+    <details class="sec">
+      <summary>Mapa de campo</summary>
+      <div class="secbody">
       <label for="agNome" class="hint" style="margin:0;display:block">Nome do agente (aparece no relatório)</label>
       <input id="agNome" type="text" placeholder="Ex.: Maria da Silva" autocomplete="off">
       <input id="agEquipe" type="text" placeholder="Equipe (opcional)" autocomplete="off" aria-label="Equipe">
@@ -234,10 +286,38 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
       <div class="count"><div><b id="cSel">0</b> selecionadas</div><div><b id="cVis">242</b> no mapa</div></div>
       <button class="btn primary big" id="gen" type="button">GERAR MAPA PARA CAMPO</button>
       <p class="hint">Também dá para selecionar tocando no número e usando o botão “Selecionar” do balão.</p>
-    </section>
+      </div>
+    </details>
 
-    <section>
-      <h2>Grid de quadrículas</h2>
+    <details class="sec">
+      <summary>Pesquisar</summary>
+      <div class="secbody">
+      <div class="search">
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Número, rua ou endereço" aria-label="Pesquisar ovitrampa">
+        <div id="sres" role="listbox"></div>
+      </div>
+      <p class="hint">Ex.: 101, Guia Lopes, Vital Brasil.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Filtrar por faixa de números</summary>
+      <div class="secbody">
+      <div class="chips" id="chips">
+        <button class="chip" data-f="1-50" aria-pressed="false">1–50</button>
+        <button class="chip" data-f="51-100" aria-pressed="false">51–100</button>
+        <button class="chip" data-f="101-150" aria-pressed="false">101–150</button>
+        <button class="chip" data-f="151-200" aria-pressed="false">151–200</button>
+        <button class="chip" data-f="201-242" aria-pressed="false">201–242</button>
+        <button class="chip" data-f="all" aria-pressed="true">Todos</button>
+      </div>
+      <div class="row"><button class="btn" id="selFilter" type="button">Selecionar todos desta faixa</button></div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Grid de quadrículas</summary>
+      <div class="secbody">
       <label class="switch" style="margin-top:0"><input type="checkbox" id="gOn"> Mostrar grid no mapa</label>
       <label class="switch"><input type="checkbox" id="gPrint"> Incluir grid no print e no relatório</label>
       <div class="row">
@@ -258,10 +338,21 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
       <div class="row"><button class="btn" id="gPick" type="button">📍 Marcar o início no mapa</button></div>
       <p class="hint" id="gInfo"></p>
       <p class="hint">O grid é o mesmo para todos os mapas (a quadrícula “F12” é igual em qualquer agente). No mapa, a cruz “+” marca o centro de cada quadrícula: o agente deve instalar a ovitrampa o mais perto possível dela. O início (A1) é o canto noroeste.</p>
-    </section>
+      </div>
+    </details>
 
-    <section>
-      <h2>Print e salvamento</h2>
+    <details class="sec">
+      <summary>Contorno por nº de ovos</summary>
+      <div class="secbody">
+      <label class="switch" style="margin-top:0"><input type="checkbox" id="ovOn"> Mostrar contorno colorido no mapa</label>
+      <label class="switch"><input type="checkbox" id="ovPrint"> Incluir no print e no relatório</label>
+      <p class="hint">Desmarcado = visual padrão, sem cores. Ligado, só o contorno do número muda de cor: 🟦 0 ovos · 🟩 1–20 · 🟨 21–50 · 🟧 51–100 · 🟥 101+ · 🟪 sem informação.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Print e salvamento</summary>
+      <div class="secbody">
       <label for="fundo" class="hint" style="margin:0 0 6px;display:block">Mapa de fundo do print</label>
       <select id="fundo" aria-label="Mapa de fundo do print" style="padding:10px;border:2px solid var(--line);border-radius:8px;width:100%;background:#fff;margin-bottom:10px">
         <option value="esri" selected>Igual ao da tela (Esri) — recomendado</option>
@@ -276,30 +367,12 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
       <div class="row"><button class="btn" id="pasta" type="button">📁 Escolher pasta para salvar</button></div>
       <p class="hint" id="pastaNome">Sem escolher, o navegador salva na pasta Downloads (Transferências). No celular: app Arquivos › Downloads.</p>
       <p class="hint">O nome da rua de cada ovitrampa é escrito na imagem em letra nítida (vem da sua base), mesmo que o mapa de fundo tenha o nome pequeno ou ausente.</p>
-    </section>
-
-    <section>
-      <h2>Mapas por agente <span style="font-weight:400;color:var(--mute)">(em lote)</span></h2>
-      <p class="hint" id="bInfo"></p>
-      <div id="agents" aria-label="Agentes"></div>
-      <p class="hint">Toque num agente para ver as ovitrampas dele no mapa.</p>
-      <label for="agNomes" class="hint" style="margin:12px 0 6px;display:block">Nomes dos agentes (opcional, um por linha: 1ª linha = agente 1, 2ª = agente 2…)</label>
-      <textarea id="agNomes" placeholder="Maria da Silva&#10;João Pereira&#10;…"></textarea>
-      <div class="row">
-        <label for="bfrom">Gerar do agente</label>
-        <input id="bfrom" type="number" min="1" value="1">
-        <label for="bto">ao</label>
-        <input id="bto" type="number" min="1" value="44">
       </div>
-      <label class="switch"><input type="checkbox" id="bPng" checked> PNG de cada agente</label>
-      <label class="switch"><input type="checkbox" id="bPdf" checked> PDF de cada agente</label>
-      <label class="switch"><input type="checkbox" id="bAll" checked> PDF único com todos (1 página por agente)</label>
-      <button class="btn primary big" id="bGo" type="button">GERAR TODOS OS MAPAS DOS AGENTES</button>
-      <p class="hint">Baixa um .zip com os arquivos de cada agente e, se marcado, o PDF único. Dica: para muitos agentes, gere em partes (ex.: 1 a 10).</p>
-    </section>
+    </details>
 
-    <section>
-      <h2>Agrupar por proximidade <span style="font-weight:400;color:var(--mute)">(prévia)</span></h2>
+    <details class="sec">
+      <summary>Agrupar por proximidade <span style="font-weight:400;color:var(--mute)">(prévia)</span></summary>
+      <div class="secbody">
       <div class="row" style="margin-top:0">
         <label for="gsize">Pontos por mapa</label>
         <input id="gsize" type="number" min="5" max="60" value="20">
@@ -308,14 +381,17 @@ td button.idb{border:0;background:#12404f;color:#fff;border-radius:6px;padding:3
       </div>
       <div id="groups"></div>
       <p class="hint">Agrupa os pontos visíveis por vizinhança. Toque num grupo para selecioná-lo.</p>
-    </section>
+      </div>
+    </details>
 
-    <section>
-      <h2>Conferência das coordenadas</h2>
+    <details class="sec">
+      <summary>Conferência das coordenadas</summary>
+      <div class="secbody">
       <div class="valsum" id="valsum"></div>
       <p class="hint" id="valnote"></p>
       <div class="row"><button class="btn" id="openVal" type="button">Ver lista para conferência</button></div>
-    </section>
+      </div>
+    </details>
   </aside>
 
   <main id="mapwrap">
@@ -403,6 +479,11 @@ const CORRECOES = [
 ]; // { id, campo:'lat'|'lon'|'endereco', de, para, motivo, data, responsavel }
 
 const CENTRO = [-22.536, -55.726];
+/* Contorno do número = faixa de ovos */
+const FAIXAS_OVOS=[['0 ovos','#73d7ff'],['1–20 ovos','#c0ff80'],['21–50 ovos','#ffff00'],['51–100 ovos','#f98404'],['101+ ovos','#ff0000'],['Sem informação','#800080']];
+const corOvos=n=>(n===null||n===undefined)?'#800080':n<=0?'#73d7ff':n<=20?'#c0ff80':n<=50?'#ffff00':n<=100?'#f98404':'#ff0000';
+const ovOn=()=>!!(document.getElementById('ovOn')&&document.getElementById('ovOn').checked);
+const ovPrintOn=()=>!!(document.getElementById('ovPrint')&&document.getElementById('ovPrint').checked);
 const GCOL = ['#d90429','#7b2cbf','#1b8a2f','#e36414','#1d4ed8','#0a9396','#c9184a','#8a6d00','#6a040f','#0b525b'];
 
 /* Modelo pronto para dados futuros (agente, equipe, datas, ovos, situação, foto, observação, histórico, status) */
@@ -453,6 +534,14 @@ osm.addTo(map);
 L.control.layers({'Mapa (ruas)':osm,'Satélite':sat},null,{position:'topright',collapsed:false}).addTo(map);
 L.control.scale({imperial:false}).addTo(map);
 const layer = L.layerGroup().addTo(map);
+const legOv=L.control({position:'bottomleft'});
+legOv.onAdd=()=>{ const d=L.DomUtil.create('div','legov'); d.innerHTML=`<details ${window.innerWidth>820?'open':''}><summary>Contorno = nº de ovos</summary>${FAIXAS_OVOS.map(([t,c])=>`<div><i style="background:${c}"></i>${t}</div>`).join('')}</details>`; L.DomEvent.disableClickPropagation(d); return d; };
+$('ovOn').addEventListener('change',()=>{
+  const on=ovOn(); document.body.classList.toggle('ov-on',on);
+  if(on&&!$('ovPrint').checked) $('ovPrint').checked=true;
+  if(on) legOv.addTo(map); else map.removeControl(legOv);
+  refresh(false);
+});
 
 function zoomClass(m){
   const z=m.getZoom(), c=m.getContainer();
@@ -490,7 +579,7 @@ function iconFor(o, plain){
   const c=['mk']; const isSel=!plain && sel.has(o.id);
   if(isSel) c.push('sel'); if(o.id>=100) c.push('n3');
   const bg=(!isSel && o.grupo!=null)? `--bg:${GCOL[o.grupo%GCOL.length]}` : '';
-  return L.divIcon({className:'mk-wrap',html:`<div class="${c.join(' ')}" style="${bg}"><span class="num">${o.id}</span><svg class=\"pot\" viewBox=\"0 0 28 28\" aria-hidden=\"true\"><path d=\"M17.5 1.5l4 1.2-4.4 10.6-3.2-1z\" fill=\"#d9a15b\" stroke=\"#6b4217\" stroke-width=\"1\"/><path d=\"M5 9.5L7.3 25c.1 1 .9 1.7 1.9 1.7h9.6c1 0 1.8-.7 1.9-1.7L23 9.5z\" fill=\"#1a1a1a\" stroke=\"#fff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><ellipse class=\"rim\" cx=\"14\" cy=\"9.5\" rx=\"9\" ry=\"3.2\" stroke=\"#fff\" stroke-width=\"1.6\"/><ellipse cx=\"14\" cy=\"9.5\" rx=\"6.4\" ry=\"2\" fill=\"#4aa8e8\"/></svg></div>`,iconSize:[0,0]});
+  return L.divIcon({className:'mk-wrap',html:`<div class="${c.join(' ')}" style="${bg};--ov:${corOvos(o.ovos)}"><span class="num">${o.id}</span><svg class=\"pot\" viewBox=\"0 0 28 28\" aria-hidden=\"true\"><path d=\"M17.5 1.5l4 1.2-4.4 10.6-3.2-1z\" fill=\"#d9a15b\" stroke=\"#6b4217\" stroke-width=\"1\"/><path d=\"M5 9.5L7.3 25c.1 1 .9 1.7 1.9 1.7h9.6c1 0 1.8-.7 1.9-1.7L23 9.5z\" fill=\"#1a1a1a\" stroke=\"#fff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><ellipse class=\"rim\" cx=\"14\" cy=\"9.5\" rx=\"9\" ry=\"3.2\" stroke=\"#fff\" stroke-width=\"1.6\"/><ellipse cx=\"14\" cy=\"9.5\" rx=\"6.4\" ry=\"2\" fill=\"#4aa8e8\"/></svg></div>`,iconSize:[0,0]});
 }
 
 function alertasDe(id){ return (VAL||[]).filter(v=>v.id===id); }
@@ -499,8 +588,9 @@ function popupHtml(o){
   return `<div class="pp">
     <div class="pp-id">Ovitrampa ${o.id}</div>
     <div class="pp-addr">${esc(o.endereco)}</div>
+    ${agentePopup(o)}
     <div class="pp-coord">Lat ${esc(o.latRaw)} · Lon ${esc(o.lonRaw)}</div>
-    <div class="pp-coord" style="margin-top:-6px">Ovos: <b>${o.ovos===null?'sem contagem':o.ovos}</b></div>
+    <div class="pp-coord" style="margin-top:-6px">${ovOn()?`<span style="display:inline-block;width:22px;height:12px;border-radius:6px;border:1.5px solid #111;vertical-align:-2px;background:${corOvos(o.ovos)}"></span> `:''}Ovos: <b>${o.ovos===null?'sem contagem':o.ovos}</b></div>
     ${gradeLinhaPopup(o)}
     <a class="btn" target="_blank" rel="noopener" href="${linkAbrir(o)}">Abrir no Google Maps</a>
     <a class="btn nav" target="_blank" rel="noopener" href="${linkNavegar(o)}">Navegar até a ovitrampa</a>
@@ -585,7 +675,14 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.search')) $('sres'
 
 /* menu móvel */
 function closeMenu(){ document.body.classList.remove('menu-open'); setTimeout(()=>map.invalidateSize(),50); }
-$('menuBtn').addEventListener('click',()=>document.body.classList.add('menu-open'));
+function setMenuHidden(h){
+  document.body.classList.toggle('menu-hidden',h);
+  try{ localStorage.setItem('menuHidden',h?'1':'0'); }catch(e){}
+  setTimeout(()=>map.invalidateSize(),60); setTimeout(()=>map.invalidateSize(),280);
+}
+$('hideMenu').addEventListener('click',()=>setMenuHidden(true));
+$('menuBtn').addEventListener('click',()=>{ document.body.classList.add('menu-open'); if(document.body.classList.contains('menu-hidden')) setMenuHidden(false); });
+try{ if(localStorage.getItem('menuHidden')==='1'&&window.innerWidth>820){ document.body.classList.add('menu-hidden'); setTimeout(()=>map.invalidateSize(),100); } }catch(e){}
 $('closeMenu').addEventListener('click',closeMenu);
 
 /* ===================== agrupamento por proximidade (prévia) ===================== */
@@ -854,7 +951,18 @@ function desenhaGrade(ctx,proj,k,satelite){
 /* ===================== relatório de campo ===================== */
 let folhaAtual=null;
 function selList(){ return [...sel].sort((a,b)=>a-b).map(id=>byId[id]); }
-const infoTela=()=>({agente:$('agNome').value.trim(),equipe:$('agEquipe').value.trim()});
+function infoSel(){
+  const ids=[...sel]; if(!ids.length) return null;
+  const ags=[...new Set(ids.map(id=>AG_POR_ID[id]).filter(Boolean))];
+  if(ags.length===1) return infoAg(ags[0]);
+  const eqs=[...new Set(ags.map(a=>a.equipe))];
+  if(eqs.length===1&&eqs[0]) return {agente:'',area:'',zona:null,equipe:'Equipe '+eqs[0],eqCor:COR_EQ[eqs[0]]};
+  return null;
+}
+function infoTela(){
+  const man={agente:$('agNome').value.trim(),equipe:$('agEquipe').value.trim()}, auto=infoSel()||{};
+  return {agente:man.agente||auto.agente||'',area:auto.area||'',zona:auto.zona||null,equipe:man.equipe||auto.equipe||'',eqCor:man.equipe?null:(auto.eqCor||null)};
+}
 const slug=t=>String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,30);
 const nomeFolha=(lista,info)=>nomeArq(lista)+(info&&info.agente?'_'+slug(info.agente):'');
 async function abrirFolha(){
@@ -914,13 +1022,13 @@ const textoSobre=hex=>{ const n=parseInt(hex.slice(1),16), r=n>>16, g=(n>>8)&255
 const FONTE='"Archivo","Segoe UI",system-ui,-apple-system,sans-serif';
 const pad=(n,l)=>String(n).padStart(l,'0');
 const toBlobP=(cv,tipo,q)=>new Promise(r=>cv.toBlob(r,tipo||'image/png',q));
-const tituloLista=lista=>'Relatório de campo — Ovitrampas '+compress(lista.map(o=>o.id));
+const tituloLista=lista=>{ const ids=lista.map(o=>o.id); const a=AGS.find(a=>a.lista.length===ids.length&&a.lista.every((o,i)=>o.id===ids[i])); return a?rotAg(a):'Relatório de campo — Ovitrampas '+compress(ids); };
 let pastaDest=null;
 async function salvarNaPasta(blob,nome){
-  try{ const fh=await pastaDest.getFileHandle(nome,{create:true}); const w=await fh.createWritable(); await w.write(blob); await w.close(); if(!bRodando) toast(`Salvo na pasta “${pastaDest.name}”: ${nome}`); }
+  try{ const partes=nome.split('/'); let dir=pastaDest; for(const p of partes.slice(0,-1)) dir=await dir.getDirectoryHandle(p,{create:true}); const fh=await dir.getFileHandle(partes[partes.length-1],{create:true}); const w=await fh.createWritable(); await w.write(blob); await w.close(); if(!bRodando) toast(`Salvo na pasta “${pastaDest.name}”: ${nome}`); }
   catch(e){ console.warn(e); pastaDest=null; $('pastaNome').textContent='Não foi possível gravar na pasta; usando Downloads.'; anexaBaixar(blob,nome); }
 }
-function anexaBaixar(blob,nome){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),8000); if(!bRodando) toast(`“${nome}” foi para a pasta Downloads (Transferências) do navegador.`); }
+function anexaBaixar(blob,nome){ nome=nome.replace(/\//g,' - '); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),8000); if(!bRodando) toast(`“${nome}” foi para a pasta Downloads (Transferências) do navegador.`); }
 function baixarArq(blob,nome){ if(pastaDest) salvarNaPasta(blob,nome); else anexaBaixar(blob,nome); }
 $('pasta').addEventListener('click',async()=>{
   if(!window.showDirectoryPicker){ toast('Este navegador não deixa escolher pasta. Os arquivos vão para Downloads (Transferências). Use Chrome/Edge no computador para escolher.'); return; }
@@ -1057,9 +1165,15 @@ function desenhaMarcador(ctx,x,y,o,s){
   ctx.font=`900 ${f}px ${FONTE}`; const tw=ctx.measureText(txt).width;
   const h=f*1.25+6*s, w=Math.max(S*1.0,tw+20*s), px=x-w/2, py=y-S-2*s+6*s-h;
   rr(ctx,px,py,w,h,h/2);
-  ctx.shadowColor='rgba(0,0,0,.6)'; ctx.lineWidth=7*s; ctx.strokeStyle='#000'; ctx.stroke();      /* contorno preto externo */
-  ctx.shadowColor='transparent'; ctx.lineWidth=4*s; ctx.strokeStyle='#fff'; ctx.stroke();        /* anel branco */
-  ctx.fillStyle=cor; ctx.fill();                                                                  /* cor cheia */
+  if(ovPrintOn()){                                                                                   /* contorno = faixa de ovos (versão leve) */
+    ctx.shadowColor='rgba(0,0,0,.6)'; ctx.lineWidth=8.5*s; ctx.strokeStyle='#000'; ctx.stroke();
+    ctx.shadowColor='transparent'; ctx.lineWidth=6.5*s; ctx.strokeStyle=corOvos(o.ovos); ctx.stroke();
+    ctx.fillStyle=cor; ctx.fill(); ctx.lineWidth=1.3*s; ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.stroke();
+  } else {                                                                                           /* padrão: preto + anel branco */
+    ctx.shadowColor='rgba(0,0,0,.6)'; ctx.lineWidth=7*s; ctx.strokeStyle='#000'; ctx.stroke();
+    ctx.shadowColor='transparent'; ctx.lineWidth=4*s; ctx.strokeStyle='#fff'; ctx.stroke();
+    ctx.fillStyle=cor; ctx.fill();
+  }
   ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.shadowColor='transparent';
   if(textoSobre(cor)!=='#111'){ ctx.lineWidth=3*s; ctx.lineJoin='round'; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.strokeText(txt,x,py+h/2+.5*s); }
   ctx.fillStyle=textoSobre(cor); ctx.fillText(txt,x,py+h/2+.5*s);                           /* número branco com borda escura */
@@ -1120,8 +1234,8 @@ function comporFolha(mapCv,lista,titulo,info){
   const gr=gradePrintOn()?G:null;
   const W=mapCv.width, u=W/1000, n=lista.length, comLista=n>=1&&n<=20, rowH=(n>10?50:62)*u, mx=24*u;
   const INK=PAL.navy, BR=PAL.blue, CL='#EEF4FA', LN='#C5D6E8', MUTE='#5B7391', RISCO='#9DB0C6';
-  const mh=mapCv.height*(W-2*mx)/W, hHead=128*u, hInfo=100*u, hSecT=comLista?64*u:0, hTh=comLista?38*u:0, hRows=comLista?n*rowH:0, temOvos=comLista&&lista.some(o=>o.ovos!==null&&o.ovos!==undefined), hTot=temOvos?48*u:0, hFoot=56*u;
-  const cv=document.createElement('canvas'); cv.width=W; cv.height=Math.round(hHead+hInfo+mh+16*u+hSecT+hTh+hRows+hTot+hFoot);
+  const mh=mapCv.height*(W-2*mx)/W, hHead=128*u, hInfo=100*u, hSecT=comLista?64*u:0, hTh=comLista?38*u:0, hRows=comLista?n*rowH:0, temOvos=comLista&&lista.some(o=>o.ovos!==null&&o.ovos!==undefined), hTot=temOvos?48*u:0, hLeg=ovPrintOn()?40*u:0, hFoot=56*u;
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=Math.round(hHead+hInfo+mh+16*u+hSecT+hTh+hRows+hTot+hLeg+hFoot);
   const c=cv.getContext('2d');
   c.fillStyle='#fff'; c.fillRect(0,0,cv.width,cv.height);
   /* cabeçalho com o logo da Prefeitura */
@@ -1139,20 +1253,31 @@ function comporFolha(mapCv,lista,titulo,info){
   /* faixa com as cores do logo */
   [[PAL.navy,.38],[PAL.blue,.30],[PAL.green,.14],[PAL.yellow,.11],[PAL.red,.07]].reduce((x,[col,p])=>{ c.fillStyle=col; c.fillRect(x,hHead-8*u,Math.ceil(W*p)+1,8*u); return x+W*p; },0);
   /* cartões de informação */
-  const gap=14*u, cw4=(W-2*mx-3*gap)/4, iy=hHead+18*u, ih=hInfo-30*u;
-  const cards=[['AGENTE',info.agente||''],['EQUIPE',info.equipe||''],['DATA DA VISITA',''],['OVITRAMPAS',faixaTxt(lista)]];
+  const gap=14*u, iy=hHead+18*u, ih=hInfo-30*u, tot4=W-2*mx-3*gap, fr=[.27,.33,.24,.16];
+  const eqTxt=info.equipe?(info.equipe+(info.zona?' · Zona '+info.zona:'')):(info.zona?'Zona '+info.zona:'');
+  const cards=[['AGENTE',info.agente||''],['ÁREA',info.area||''],['EQUIPE · ZONA',eqTxt],['DATA DA VISITA','']];
+  let cx0=mx;
   cards.forEach(([lab,val],i)=>{
-    const x=mx+i*(cw4+gap);
-    rr(c,x,iy,cw4,ih,10*u); c.fillStyle=CL; c.fill(); c.strokeStyle=LN; c.lineWidth=1.5*u; c.stroke();
+    const cw=tot4*fr[i], x=cx0; cx0+=cw+gap;
+    rr(c,x,iy,cw,ih,10*u); c.fillStyle=CL; c.fill(); c.strokeStyle=LN; c.lineWidth=1.5*u; c.stroke();
     c.textAlign='left'; c.fillStyle=MUTE; c.font=`800 ${12.5*u}px ${FONTE}`; c.fillText(lab,x+14*u,iy+22*u);
-    if(val){ c.fillStyle=INK; c.fillText(ajustaTexto(c,val,cw4-28*u,800,22*u,13*u),x+14*u,iy+ih-14*u); }
-    else{ c.fillStyle=RISCO; c.fillRect(x+14*u,iy+ih-16*u,cw4-28*u,1.5*u); }
+    let tx0=x+14*u, mw=cw-28*u;
+    if(val&&i===2&&info.eqCor){ c.beginPath(); c.arc(x+22*u,iy+ih-23*u,7*u,0,Math.PI*2); c.fillStyle=info.eqCor; c.fill(); tx0=x+36*u; mw=cw-50*u; }
+    if(val){ c.fillStyle=INK; c.fillText(ajustaTexto(c,val,mw,800,22*u,12*u),tx0,iy+ih-14*u); }
+    else{ c.fillStyle=RISCO; c.fillRect(x+14*u,iy+ih-16*u,cw-28*u,1.5*u); }
   });
+
   /* mapa com cantos arredondados */
   const my=hHead+hInfo;
   c.save(); rr(c,mx,my,W-2*mx,mapCv.height,14*u); c.clip(); c.drawImage(mapCv,0,0,mapCv.width,mapCv.height,mx,my,W-2*mx,mh); c.restore();
   rr(c,mx,my,W-2*mx,mh,14*u); c.strokeStyle=INK; c.lineWidth=3*u; c.stroke();
-  let y=my+mh+22*u;
+  /* legenda: contorno = faixa de ovos */
+  if(hLeg){ const ly=my+mh+10*u+hLeg/2-6*u; c.textBaseline='middle'; c.textAlign='left'; c.font=`800 ${12.5*u}px ${FONTE}`; c.fillStyle=MUTE;
+    let lx=mx; c.fillText('CONTORNO = Nº DE OVOS:',lx,ly); lx+=c.measureText('CONTORNO = Nº DE OVOS:').width+16*u;
+    FAIXAS_OVOS.forEach(([t,col])=>{ rr(c,lx,ly-7*u,24*u,14*u,7*u); c.fillStyle=col; c.fill(); c.lineWidth=1.8*u; c.strokeStyle='#111'; c.stroke();
+      c.fillStyle=INK; c.font=`700 ${12.5*u}px ${FONTE}`; c.fillText(t.replace(' ovos',''),lx+31*u,ly); lx+=31*u+c.measureText(t.replace(' ovos','')).width+16*u; });
+    c.textBaseline='alphabetic'; }
+  let y=my+mh+22*u+hLeg;
   if(comLista){
     c.textAlign='left'; c.fillStyle=INK; c.font=`800 ${24*u}px ${FONTE}`; c.fillText('Endereços das ovitrampas',mx,y+24*u);
     c.fillStyle=BR; c.fillRect(mx,y+34*u,60*u,4*u); c.fillStyle=PAL.yellow; c.fillRect(mx+60*u,y+34*u,30*u,4*u);
@@ -1168,7 +1293,7 @@ function comporFolha(mapCv,lista,titulo,info){
       const ry=y+i*rowH;
       if(i%2===0){ c.fillStyle=CL; c.fillRect(mx,ry,W-2*mx,rowH); }
       const ph=32*u, pw=Math.min(62*u,col.n[1]-4*u), cor=(o.grupo!=null)?GCOL[o.grupo%GCOL.length]:COR_PADRAO;
-      rr(c,col.n[0]+(col.n[1]-pw)/2,ry+(rowH-ph)/2,pw,ph,ph/2); c.fillStyle=cor; c.fill(); c.lineWidth=2.5*u; c.strokeStyle='#fff'; c.stroke();
+      rr(c,col.n[0]+(col.n[1]-pw)/2,ry+(rowH-ph)/2,pw,ph,ph/2); if(ovPrintOn()){ c.lineWidth=8*u; c.strokeStyle='#000'; c.stroke(); c.lineWidth=6*u; c.strokeStyle=corOvos(o.ovos); c.stroke(); c.fillStyle=cor; c.fill(); c.lineWidth=1.2*u; c.strokeStyle='rgba(0,0,0,.7)'; c.stroke(); } else { c.fillStyle=cor; c.fill(); c.lineWidth=2.5*u; c.strokeStyle='#fff'; c.stroke(); }
       c.fillStyle=textoSobre(cor); c.font=`800 ${20*u}px ${FONTE}`; c.textAlign='center'; c.textBaseline='middle'; c.fillText(String(o.id),col.n[0]+col.n[1]/2,ry+rowH/2+u);
       c.textAlign='left'; c.textBaseline='alphabetic'; c.fillStyle=INK;
       c.fillText(ajustaTexto(c,o.endereco,col.e[1],800,19*u,12*u),col.e[0],ry+rowH/2-3*u);
@@ -1176,7 +1301,7 @@ function comporFolha(mapCv,lista,titulo,info){
       if(gr){ const ci=celula(gr,o.gx,o.gy); c.textAlign='left'; c.fillStyle=BR; c.font=`800 ${21*u}px ${FONTE}`; c.fillText(ci.code,col.q[0],ry+rowH/2-3*u);
         c.fillStyle=MUTE; c.font=`400 ${12.5*u}px ${FONTE}`; c.fillText(ci.dentro?`${Math.round(ci.dist)} m do centro`:'fora do grid',col.q[0],ry+rowH/2+17*u); }
       { const ov=o.ovos; c.textAlign='center'; c.textBaseline='middle'; c.font=`800 ${24*u}px ${FONTE}`;
-        c.fillStyle=(ov===null||ov===undefined)?RISCO:(ov>0?'#B42318':INK); c.fillText((ov===null||ov===undefined)?'—':String(ov),col.v[0]+col.v[1]/2,ry+rowH/2+u);
+        c.fillStyle=(ov===null||ov===undefined)?RISCO:INK; c.fillText((ov===null||ov===undefined)?'—':String(ov),col.v[0]+col.v[1]/2,ry+rowH/2+u);
         c.textAlign='left'; c.textBaseline='alphabetic'; }
       c.fillStyle=RISCO; c.fillRect(col.d[0],ry+rowH-16*u,col.d[1]-10*u,1.5*u); c.fillRect(col.o[0],ry+rowH-16*u,col.o[1],1.5*u);
       c.fillStyle=RISCO; c.font=`400 ${13*u}px ${FONTE}`; c.fillText('  /    /',col.d[0],ry+rowH-20*u);
@@ -1188,7 +1313,7 @@ function comporFolha(mapCv,lista,titulo,info){
       const tot=lista.reduce((t,o)=>t+(o.ovos||0),0), sem=lista.filter(o=>o.ovos===null||o.ovos===undefined).length;
       c.fillStyle='#DCE9F5'; c.fillRect(mx,y,W-2*mx,hTot); c.strokeStyle=LN; c.strokeRect(mx,y,W-2*mx,hTot);
       c.textBaseline='middle'; c.textAlign='right'; c.fillStyle=INK; c.font=`800 ${15*u}px ${FONTE}`; c.fillText('TOTAL DE OVOS NESTA LISTA',col.v[0]-14*u,y+hTot/2+u);
-      c.textAlign='center'; c.font=`800 ${26*u}px ${FONTE}`; c.fillStyle=tot>0?'#B42318':INK; c.fillText(String(tot),col.v[0]+col.v[1]/2,y+hTot/2+u);
+      c.textAlign='center'; c.font=`800 ${26*u}px ${FONTE}`; c.fillStyle=INK; c.fillText(String(tot),col.v[0]+col.v[1]/2,y+hTot/2+u);
       if(sem){ c.textAlign='left'; c.font=`400 ${12.5*u}px ${FONTE}`; c.fillStyle=MUTE; c.fillText(`${sem} ovitrampa${sem>1?'s':''} sem contagem de ovos`,col.d[0],y+hTot/2+u); }
       c.textBaseline='alphabetic'; c.textAlign='left'; y+=hTot;
     }
@@ -1284,81 +1409,143 @@ $('shotPdf').addEventListener('click',()=>{
 });
 
 /* ================= MAPAS POR AGENTE (lotes de 5) ================= */
-/* Divisão oficial: 44 agentes. 1–28 = 5 cada (1–140) · 29–42 = 6 cada (141–224) · 43 = 225–233 · 44 = 234–242 */
-const DIVISAO=(()=>{ const d=[]; let i=1;
-  for(let a=1;a<=28;a++){ d.push([i,i+4]); i+=5; }
-  for(let a=29;a<=42;a++){ d.push([i,i+5]); i+=6; }
-  d.push([225,233],[234,242]); return d; })();
-function agentesLista(){
-  const ord=[...pts].sort((a,b)=>a.id-b.id);
-  return DIVISAO.map(([x,y])=>ord.filter(o=>o.id>=x&&o.id<=y));
+/* ===================== AGENTES, ÁREAS E EQUIPES (planilha da coordenação) =====================
+   [zona, área, agente, ovitrampa inicial, final, equipe]. Zonas 43 e 44 ainda sem agente/equipe definidos. */
+const AGENTES_RAW=[
+ [1,'JULIA CARDINAL','Wagner',1,5,1],[2,'EMÍLIO DIAS BRANDÃO','Ana Gabriela',6,10,1],[3,'JARDIM MARAMBAIA','Gabriel',11,15,1],
+ [4,'JARDIM UNIVERSITÁRIO','Cris Milene',16,20,1],[5,'JARDIM DOS ESTADOS','Adriana Saraiva',21,25,1],[6,'ALTOS DA GLÓRIA','Evelyn',26,30,1],
+ [7,'JARDIM PRIMAVERA','Raquel',31,35,1],[8,'MOOCA','Adriano Thiel',36,40,1],[9,'PARQUE DE EXPOSIÇÕES','Rozentina',41,45,1],
+ [10,'ANDREAZZA','Carlos',46,50,1],[11,'SALGADO FILHO','Teonilda',51,55,2],[12,'JARDIM AEROPORTO','Fabiana',56,60,2],
+ [13,'COHAB','Cícero',61,65,2],[14,'BAIRRO DA GRANJA','Willian',66,70,2],[15,'PARQUE DOS ERVAIS','Suely',71,75,2],
+ [16,'CENTRO I','Matheus',76,80,2],[17,'CENTRO II','Tania',81,85,2],[18,'CENTRO III','Wesley',86,90,2],
+ [19,'CENTRO IV','Gilmar',91,95,2],[20,'CENTRO V','Bianca',96,100,2],[21,'JARDIM IPANEMA','Gisele',101,105,2],
+ [22,'VILA TORRES','Brauher',106,110,2],[23,'SANTA IZABEL','Naime',111,115,3],[24,'SÃO JOÃO','Rosalina',116,120,3],
+ [25,'JARDIM ESTORIL','Miglidiane',121,125,3],[26,'JAMIL DERZI','Gean',126,130,3],[27,'JARDIM COIMBRA','Claine',131,135,3],
+ [28,'VILA RENÔ','Emidio',136,140,3],[29,'JARDIM PANAMBI','Selba',141,146,3],[30,'RESIDENCIAL P.P. 1 - ÁREA B','Marco Ayala',147,152,3],
+ [31,'RESIDENCIAL P.P. 1 - ÁREA A','Alana',153,158,3],[32,'VILA ÁUREA','Silvana',159,164,4],[33,'VILA ALEGRETE','Ramona',165,170,4],
+ [34,'JARDIM PLANALTO','Sara',171,176,4],[35,'BOSQUE CARANDÁ','Karielle',177,182,4],[36,'JARDIM IBIRAPUERA','Walquiria',183,188,4],
+ [37,'PARQUE DOS IPÊS','Gisele Lopes',189,194,4],[38,'JARDIM INDEPENDÊNCIA','Anderson Sant.',195,200,4],[39,'KAMEL SAAD 1','Katia',201,206,4],
+ [40,'KAMEL SAAD 2','Rozana',207,212,4],[41,'JARDIM IVONE','Juliana',213,218,4],[42,'GUY VILELA','Rafael',219,224,4],
+ [43,'','',225,233,null],[44,'','',234,242,null]
+];
+const COR_EQ={1:'#007ECA',2:'#00A651',3:'#C98A00',4:'#E0182D'};
+const tituloPT=t=>String(t).toLowerCase().split(' ').map((w,i)=>/^(i|ii|iii|iv|v)$/.test(w)?w.toUpperCase():w==='p.p.'?'P.P.':(i>0&&['de','da','do','dos','das','e'].includes(w))?w:w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+const AGS=AGENTES_RAW.map(([zona,area,nome,ini,fim,equipe])=>({zona,area:area?tituloPT(area):'',nome,ini,fim,equipe,lista:pts.filter(o=>o.id>=ini&&o.id<=fim)}));
+const AG_POR_ID={}; AGS.forEach(a=>a.lista.forEach(o=>AG_POR_ID[o.id]=a));
+const nomeAg=a=>a.nome||('Agente '+a.zona), eqTxt=a=>a.equipe?'Equipe '+a.equipe:'Sem equipe';
+const faixa=a=>a.fim>a.ini?`${a.ini}–${a.fim}`:String(a.ini);
+const rotAg=a=>`Zona ${a.zona} — Ovitrampas ${a.fim>a.ini?a.ini+' a '+a.fim:a.ini}`;
+const infoAg=a=>({agente:a.nome,area:a.area,zona:a.zona,equipe:a.equipe?'Equipe '+a.equipe:'',eqCor:a.equipe?COR_EQ[a.equipe]:null});
+function agentePopup(o){
+  const a=AG_POR_ID[o.id]; if(!a) return '';
+  return `<div class="pp-coord" style="margin-top:-6px">Agente <b>${esc(a.nome||'não definido')}</b> · ${esc(eqTxt(a))} · Zona ${a.zona}${a.area?'<br>'+esc(a.area):''}</div>`;
 }
-const faixa=g=>g.length>1?`${g[0].id}–${g[g.length-1].id}`:String(g[0].id);
-const rotAg=(g,i)=>`Agente ${i+1} — Ovitrampas ${g.length>1?g[0].id+' a '+g[g.length-1].id:g[0].id}`;
+const cmpNome=(x,y)=>(x.nome?0:1)-(y.nome?0:1)||norm(x.nome).localeCompare(norm(y.nome),'pt')||x.zona-y.zona;
+function ordenaAg(l,modo){
+  const c=[...l];
+  if(modo==='nome') c.sort(cmpNome);
+  else if(modo==='zona') c.sort((x,y)=>x.zona-y.zona);
+  else c.sort((x,y)=>((x.equipe||9)-(y.equipe||9))||cmpNome(x,y));
+  return c;
+}
+let agEq=null;
 function renderAgentes(){
-  const ag=agentesLista();
-  $('agents').innerHTML=ag.map((g,i)=>`<button type="button" data-a="${i}" title="${esc(rotAg(g,i))}"><b>A${i+1}</b>${faixa(g)}</button>`).join('');
-  $('bfrom').max=$('bto').max=ag.length; $('bfrom').value=1; $('bto').value=ag.length;
-  $('bInfo').textContent=`${ag.length} agentes · A1–A28: 5 ovitrampas · A29–A42: 6 · A43 e A44: 9 cada (total ${ag.reduce((t,g)=>t+g.length,0)}).`;
+  const modo=$('agOrd').value, q=norm($('agBusca').value.trim());
+  const eqs=[...new Set(AGS.map(a=>a.equipe).filter(Boolean))].sort();
+  $('agEq').innerHTML=`<button type="button" data-f="" class="${agEq===null?'on':''}">Todas</button>`+eqs.map(e=>`<button type="button" data-f="${e}" class="${agEq===e?'on':''}" style="${agEq===e?'':`border-color:${COR_EQ[e]}`}">Equipe ${e}</button>`).join('');
+  let l=AGS.filter(a=>(agEq===null||a.equipe===agEq)&&(!q||norm([a.nome,a.area,'zona '+a.zona,a.ini+'-'+a.fim,eqTxt(a)].join(' ')).includes(q)));
+  l=ordenaAg(l,modo);
+  const row=a=>`<button type="button" class="ag" data-z="${a.zona}"><span class="agn">${esc(nomeAg(a))}</span><span class="aga">${esc(a.area||'Área não informada')}</span><span class="agm">Zona ${a.zona} · ovitrampas ${faixa(a)}</span><i class="eqc" style="background:${a.equipe?COR_EQ[a.equipe]:'#7a8b90'}">${a.equipe?'Eq. '+a.equipe:'sem eq.'}</i></button>`;
+  let h='';
+  if(modo==='equipe'){
+    let atual='#';
+    l.forEach(a=>{
+      const k=a.equipe||0;
+      if(k!==atual){ atual=k; const g=l.filter(x=>(x.equipe||0)===k); const nO=g.reduce((t,x)=>t+x.lista.length,0);
+        h+=`<div class="agh" style="--c:${k?COR_EQ[k]:'#7a8b90'}"><span>${k?'Equipe '+k:'Sem equipe'} · ${g.length} agente${g.length>1?'s':''} · ${nO} ovitrampas</span>${k?`<button type="button" data-eq="${k}">ver equipe no mapa</button>`:''}</div>`; }
+      h+=row(a);
+    });
+  } else h=l.map(row).join('');
+  $('agents').innerHTML=h||'<div style="padding:14px;color:var(--mute)">Nenhum agente encontrado.</div>';
+  $('bInfo').textContent=`${AGS.filter(a=>a.nome).length} agentes com nome · ${eqs.length} equipes · ${pts.length} ovitrampas (zonas 43 e 44 ainda sem agente).`;
+  const bq=$('bEq'); if(!bq.options.length) bq.innerHTML='<option value="">Todas as equipes</option>'+eqs.map(e=>`<option value="${e}">Equipe ${e}</option>`).join('')+'<option value="0">Sem equipe (zonas 43 e 44)</option>';
+  resumoLote();
+}
+function selecionaIds(ids){
+  const old=[...sel]; sel.clear(); ids.forEach(id=>sel.add(id));
+  reicon([...new Set([...old,...ids])]); field=true; refresh(true); closeMenu();
 }
 $('agents').addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b) return;
-  const i=+b.dataset.a, g=agentesLista()[i];
-  document.querySelectorAll('#agents button').forEach(x=>x.classList.toggle('on',x===b));
-  const old=[...sel]; sel.clear(); g.forEach(o=>sel.add(o.id));
-  reicon([...new Set([...old,...g.map(o=>o.id)])]); field=true; refresh(true); closeMenu();
-  toast(`${rotAg(g,i)}`);
+  const eb=e.target.closest('button[data-eq]');
+  if(eb){ const eq=+eb.dataset.eq, g=AGS.filter(a=>a.equipe===eq); selecionaIds(g.flatMap(a=>a.lista.map(o=>o.id)));
+    toast(`Equipe ${eq}: ${g.length} agentes · ${g.reduce((t,a)=>t+a.lista.length,0)} ovitrampas`); return; }
+  const b=e.target.closest('button.ag'); if(!b) return;
+  const a=AGS.find(x=>x.zona===+b.dataset.z);
+  document.querySelectorAll('#agents button.ag').forEach(x=>x.classList.toggle('on',x===b));
+  selecionaIds(a.lista.map(o=>o.id));
+  toast(`${rotAg(a)} · ${eqTxt(a)}`);
 });
+$('agEq').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; agEq=b.dataset.f===''?null:+b.dataset.f; renderAgentes(); });
+$('agOrd').addEventListener('change',renderAgentes);
+$('agBusca').addEventListener('input',renderAgentes);
+
+function loteAlvo(){
+  const f=$('bEq').value, z0=Math.round(+$('bfrom').value)||1, z1=Math.round(+$('bto').value)||44;
+  const lo=Math.min(z0,z1), hi=Math.max(z0,z1);
+  return ordenaAg(AGS.filter(a=>a.zona>=lo&&a.zona<=hi&&(f===''||(f==='0'?!a.equipe:a.equipe===+f))),$('agOrd').value);
+}
+function resumoLote(){ const l=loteAlvo(); $('bResumo').textContent=`${l.length} mapa(s) serão gerados · ${l.reduce((t,a)=>t+a.lista.length,0)} ovitrampas.`; }
+['bEq','bfrom','bto'].forEach(id=>$(id).addEventListener('change',resumoLote));
 
 let bCancel=false, bRodando=false;
 const bTxt=t=>{ $('bTxt').textContent=t; }, bBar=f=>{ $('bBar').style.width=Math.round(f*100)+'%'; };
 $('bCancel').addEventListener('click',()=>{ bCancel=true; $('bCancel').disabled=true; bTxt('Cancelando após o mapa atual…'); });
 $('bDone').addEventListener('click',()=>{ $('batchDlg').style.display='none'; });
+const seguro=t=>String(t).replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,' ').trim();
 async function gerarLote(){
   if(bRodando) return;
-  const ag=agentesLista();
-  let a=Math.round(+$('bfrom').value)||1, b=Math.round(+$('bto').value)||ag.length;
-  a=Math.max(1,Math.min(ag.length,a)); b=Math.max(1,Math.min(ag.length,b)); if(a>b)[a,b]=[b,a];
+  const alvo=loteAlvo();
+  if(!alvo.length){ toast('Nenhum agente nesse filtro.'); return; }
   const doPng=$('bPng').checked, doPdf=$('bPdf').checked, doAll=$('bAll').checked;
   if(!doPng&&!doPdf&&!doAll){ toast('Marque ao menos um formato (PNG ou PDF).'); return; }
   if((doPdf||doAll)&&!window.jspdf){ toast('A biblioteca de PDF não carregou. Confira a internet e recarregue a página.'); return; }
-  const total=b-a+1, satelite=map.hasLayer(sat), cw=1000, ch=850;
-  const nomesAg=$('agNomes').value.split(/\r?\n/).map(t=>t.trim());
+  const total=alvo.length, satelite=map.hasLayer(sat), cw=1000, ch=850;
   bRodando=true; bCancel=false; closeMenu();
   $('batchT').textContent='Gerando mapas dos agentes…'; $('bCancel').disabled=false; $('bCancel').style.display=''; $('bDone').style.display='none';
-  bBar(0); bTxt('Carregando mapa vetorial…'); $('batchDlg').style.display='flex';
-  const zip=(window.JSZip&&!pastaDest&&(doPng||doPdf))?new JSZip():null;
+  bBar(0); bTxt('Carregando mapa…'); $('batchDlg').style.display='flex';
+  const zip=(window.JSZip&&!pastaDest)?new JSZip():null;
   const entrega=async(nome,blob)=>{ if(zip) zip.file(nome,blob); else{ baixarArq(blob,nome); await new Promise(r=>setTimeout(r,pastaDest?50:500)); } };
-  let rend=null, pdfAll=null, feitos=0; const falhas=[];
+  let rend=null, feitos=0; const falhas=[], pdfsEq={};
   try{
     rend=await criaRenderer(satelite,cw,ch,maxPR(cw,ch,+$('qual').value||3),$('fundo').value||'esri');
     await fontes();
-    for(let i=a-1;i<b;i++){
+    for(let i=0;i<alvo.length;i++){
       if(bCancel) break;
-      const g=ag[i], titulo=rotAg(g,i);
-      bTxt(`${feitos+falhas.length+1} de ${total} · ${titulo}`); bBar((feitos+falhas.length)/total);
-      const nomeAg=nomesAg[i]||'', base=`agente-${pad(i+1,2)}${nomeAg?'_'+slug(nomeAg):''}_ovitrampas-${pad(g[0].id,3)}-${pad(g[g.length-1].id,3)}`;
+      const a=alvo[i], titulo=rotAg(a);
+      bTxt(`${feitos+falhas.length+1} de ${total} · ${nomeAg(a)} · ${eqTxt(a)}`); bBar((feitos+falhas.length)/total);
+      const pasta=seguro(eqTxt(a)), stem=seguro(`Zona ${pad(a.zona,2)} - ${a.nome||'sem agente'} - ovitrampas ${pad(a.ini,3)}-${pad(a.fim,3)}`);
       try{
-        let mapCv; try{ mapCv=await rend.render(g); }catch(e){ mapCv=await rend.render(g); }   /* 1 nova tentativa */
-        const cv=comporFolha(mapCv,g,titulo,{agente:nomeAg,equipe:$('agEquipe').value.trim()});
-        if(doPng) await entrega(base+'.png',await toBlobP(cv));
-        if(doPdf){ const p=novoPdf(cv); pdfAdd(p,cv,false); await entrega(base+'.pdf',p.output('blob')); }
-        if(doAll){ if(!pdfAll){ pdfAll=novoPdf(cv); pdfAdd(pdfAll,cv,false); } else pdfAdd(pdfAll,cv,true); }
+        let mapCv; try{ mapCv=await rend.render(a.lista); }catch(e){ mapCv=await rend.render(a.lista); }   /* 1 nova tentativa */
+        const cv=comporFolha(mapCv,a.lista,titulo,infoAg(a));
+        if(doPng) await entrega(`${pasta}/${stem}.png`,await toBlobP(cv));
+        if(doPdf){ const p=novoPdf(cv); pdfAdd(p,cv,false); await entrega(`${pasta}/${stem}.pdf`,p.output('blob')); }
+        if(doAll){ const k=eqTxt(a); if(!pdfsEq[k]){ pdfsEq[k]=novoPdf(cv); pdfAdd(pdfsEq[k],cv,false); } else pdfAdd(pdfsEq[k],cv,true); }
         feitos++;
-      }catch(e){ console.error(e); falhas.push(i+1); }
+      }catch(e){ console.error(e); falhas.push(a.zona); }
       await new Promise(r=>setTimeout(r,30));
     }
     if(feitos){
       bBar(1);
-      if(zip){ bTxt('Compactando arquivos…'); baixarArq(await zip.generateAsync({type:'blob',compression:'STORE'}),`mapas-agentes_${a}-${b}.zip`); if(pdfAll) await new Promise(r=>setTimeout(r,800)); }
-      if(pdfAll) baixarArq(pdfAll.output('blob'),`mapas-agentes_${a}-${b}_todos.pdf`);
+      for(const k of Object.keys(pdfsEq)) await entrega(`${seguro(k)} - todos os agentes.pdf`,pdfsEq[k].output('blob'));
+      const f=$('bEq').value, nomeZip=`mapas-ovitrampas_${f===''?'todas-as-equipes':f==='0'?'sem-equipe':'equipe-'+f}.zip`;
+      if(zip){ bTxt('Compactando arquivos…'); baixarArq(await zip.generateAsync({type:'blob',compression:'STORE'}),nomeZip); }
     }
     $('batchT').textContent=bCancel?'Geração cancelada':(falhas.length?'Concluído com avisos':'Concluído');
-    bTxt(`${feitos} de ${total} mapa(s) gerado(s).`+(falhas.length?` Falharam os agentes: ${falhas.join(', ')} — gere-os de novo pela faixa “do agente … ao …”.`:'')+(feitos&&!zip&&(doPng||doPdf)?' (Arquivos baixados um a um: biblioteca ZIP indisponível.)':'')+(feitos?(pastaDest?` Salvos na pasta “${pastaDest.name}”.`:' Arquivos na pasta Downloads (Transferências) do navegador: procure por “mapas-agentes_'+a+'-'+b+'”.'):''));
+    bTxt(`${feitos} de ${total} mapa(s) gerado(s).`+(falhas.length?` Falharam as zonas: ${falhas.join(', ')} — gere-as de novo pelo campo “Da zona … à …”.`:'')+(feitos&&!zip?' (Arquivos salvos um a um.)':'')+(feitos?(pastaDest?` Salvos na pasta “${pastaDest.name}”, em subpastas por equipe.`:' Veja a pasta Downloads (Transferências) do navegador.'):''));
   }catch(e){
     console.error(e);
     $('batchT').textContent='Não foi possível gerar';
-    bTxt('O mapa vetorial não carregou (internet instável ou bloqueada). Confira a conexão e tente de novo. Detalhe: '+(e&&e.message||e));
+    bTxt('O mapa não carregou (internet instável ou bloqueada). Confira a conexão e tente de novo. Detalhe: '+(e&&e.message||e));
   }finally{
     if(rend) rend.destroy();
     bRodando=false; $('bCancel').style.display='none'; $('bDone').style.display='';
