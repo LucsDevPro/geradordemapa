@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#002868">
+<title>Painel de gestão — ovitrampas · Ponta Porã/MS</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="preload" href="assets/fonts/archivo-800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/tokens.css?v=462a0c85">
+<link rel="stylesheet" href="assets/vendor/leaflet.css?v=462a0c85">
+<link rel="stylesheet" href="assets/css/gestao.css?v=462a0c85">
+</head>
+<body data-pagina="gestao">
+<div id="splash" role="status"><div data-splash-txt>Carregando dados…</div></div>
+<header class="top">
+  <div class="brand"><img alt="Prefeitura Municipal de Ponta Porã" src="assets/img/logo-2x.png?v=462a0c85" width="158" height="60"><div><h1>Painel de gestão — ovitrampas</h1><p>Vigilância em Saúde / Endemias · Ponta Porã/MS</p></div></div>
+  <div class="acoes noprint"><span id="atual"></span><button id="btnImp" class="pri" type="button">Imprimir / PDF desta aba</button><button id="btnImpTudo" type="button">Imprimir tudo</button><label class="anosel" for="selAno">Ano <select id="selAno" aria-label="Ano dos resultados"></select></label><button id="btnRec" type="button">Atualizar</button><a class="bt" id="linkApp" href="index.html">Mapa de campo</a></div>
+  <div class="faixa"><i style="width:38%;background:var(--navy)"></i><i style="width:30%;background:var(--blue)"></i><i style="width:14%;background:var(--green)"></i><i style="width:11%;background:var(--yellow)"></i><i style="width:7%;background:var(--red)"></i></div>
+</header>
+<main>
+  <div id="aviso"></div>
+  <section class="filtros noprint" aria-label="Filtrar por equipe"><b style="color:var(--navy)">Equipe:</b><span id="chips"></span></section>
+  <nav class="tabs noprint" id="tabs" aria-label="Seções do painel"><button type="button" data-t="resumo" class="on">Resumo atual</button><button type="button" data-t="mensal">Análise mensal</button><button type="button" data-t="focos">Focos e alertas</button></nav>
+  <div class="tab" id="tab-resumo">
+  <section><div class="kpis" id="kpis"></div></section>
+  <section class="duas">
+    <div class="cx"><h2>Mapa das ovitrampas</h2><div id="mapa"></div><div class="leg" id="leg"></div></div>
+    <div class="cx"><h2>Faixas de ovos</h2><div id="dist"></div><p class="nota">Cada ponto do mapa tem a cor da faixa de ovos da ovitrampa.</p></div>
+  </section>
+  <section><h2>Por equipe</h2><div class="tw" id="eqTab"></div></section>
+  <section><h2>Por agente / área</h2><div class="tw" id="agTab"></div></section>
+  <section><h2>Pontos mais críticos</h2><div class="tw" id="crit"></div></section>
+  <section><h2>Evolução semanal</h2><div id="evo"></div></section>
+  <section><h2 class="noprint">Resumo por equipe</h2><div id="eqCards"></div></section>
+  </div>
+  <div class="tab off" id="tab-mensal"></div>
+  <div class="tab off" id="tab-focos"></div>
+  <footer id="rod"></footer>
+</main>
+
+
+
+<script src="assets/vendor/leaflet.js?v=462a0c85"></script>
+<script src="assets/js/boot.js?v=462a0c85"></script>
+<script src="assets/js/gestao.js?v=462a0c85"></script>
+</body>
+</html>
