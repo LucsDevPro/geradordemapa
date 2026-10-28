@@ -1,0 +1,32 @@
+/* tokens.css — identidade visual da Prefeitura de Ponta Porã (cores extraídas da logo oficial) */
+@font-face{font-family:'Archivo';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/archivo-400.woff2) format('woff2')}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/archivo-600.woff2) format('woff2')}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/archivo-800.woff2) format('woff2')}
+
+:root{
+  /* marca */
+  --marinho-900:#001a47; --marinho-800:#00215c; --marinho:#002868; --marinho-600:#143d86;
+  --azul:#007eca; --azul-700:#0066a8; --azul-200:#bcdcf1; --azul-100:#e1f0fa; --azul-50:#f0f8fd;
+  --ciano:#00a8d8; --verde:#00b838; --verde-700:#08892c; --verde-100:#dcf6e4;
+  --amarelo:#f8b800; --amarelo-100:#fff3cf; --vermelho:#f81038; --vermelho-700:#c3072a; --vermelho-100:#ffe3e8;
+  /* neutros com o matiz do marinho */
+  --ink:#0b1f3a; --tx-2:#35506f; --mute:#5b7391; --mute-2:#8798b0;
+  --line:#d3deeb; --line-2:#e6edf5; --surface:#fff; --canvas:#f3f6fb; --panel:#fff;
+  /* semânticos */
+  --brand:var(--marinho); --link:var(--azul-700); --err:var(--vermelho-700); --warn:#8a5300; --warn-bg:var(--amarelo-100); --ok:var(--verde-700); --sel:#ffc21a;
+  /* tipografia */
+  --font:'Archivo','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --fs-xs:.75rem; --fs-sm:.8125rem; --fs-md:.9375rem; --fs-lg:1.125rem; --fs-xl:1.375rem; --fs-2xl:1.75rem;
+  /* espaçamento (base 4 px) */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  /* forma e profundidade */
+  --r-sm:6px; --r-md:10px; --r-lg:16px; --r-pill:999px;
+  --sh-1:0 1px 2px rgba(0,26,71,.07),0 0 0 1px rgba(0,26,71,.03);
+  --sh-2:0 6px 18px rgba(0,26,71,.11),0 1px 3px rgba(0,26,71,.07);
+  --sh-3:0 24px 64px rgba(0,26,71,.30);
+  --focus:0 0 0 3px rgba(0,126,202,.38);
+  /* assinatura institucional: faixa nas cores da logo */
+  --faixa:linear-gradient(90deg,var(--marinho) 0 38%,var(--azul) 38% 68%,var(--verde) 68% 82%,var(--amarelo) 82% 93%,var(--vermelho) 93% 100%);
+  /* faixas de ovos (regra de classificação — não alterar) */
+  --ov-0:#73d7ff; --ov-1:#c0ff80; --ov-2:#ffff00; --ov-3:#f98404; --ov-4:#ff0000; --ov-n:#800080;
+}
